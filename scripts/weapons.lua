@@ -45,7 +45,7 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 	damage.sAnimation="SwipeClaw2"
 
 	if self.Smoke then
-		damage.sImageMark ="combat/icons/icon_Nico_smoke.png"
+		damage.sImageMark ="combat/icons/icon_Nico_smoke_glow.png"
 		local push=SpaceDamage(p2,0)
 		push.iSmoke = 1
 		push.sAnimation = "airpush_"..direction
@@ -295,8 +295,7 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 	end
 
 	if self.Heal and Board:GetPawnTeam(p2) == TEAM_PLAYER then
-		Tanim1.iDamage=0--heals allies
-		Tanim2.iDamage=-1
+		Tanim2.iDamage=-1--heals allies
 		Tanim1.sAnimation ="PsionAttack_Front"
 		ret:AddDamage(Tanim1)
 		ret:AddDamage(Tanim2)
@@ -395,14 +394,13 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 	Tanim2.sAnimation ="PsionAttack_Back"
 	
 	if self.Heal and Board:GetPawnTeam(p2) == TEAM_PLAYER then
-		Tanim1.iDamage=0--heals allies
-		Tanim2.iDamage=-1
+		Tanim2.iDamage=-1--heals allies
 		Tanim1.sAnimation ="PsionAttack_Front"
 		ret:AddDamage(Tanim1)
 		ret:AddDamage(Tanim2)
 	elseif Board:IsBuilding(p2) then-- Target Buildings -
-		Tanim1.iDamage = 0--doesn't damage buildings
-		ret:AddDamage(Tanim1)
+		ret:AddDamage(Tanim1)--doesn't damage buildings
+		Tanim2.bHide=true
 		ret:AddDamage(Tanim2)
 	elseif Board:IsCrackable(p2) and Board:IsCracked(p2)~=true then 
 		Tanim1.iDamage=self.Damage--harms enemies

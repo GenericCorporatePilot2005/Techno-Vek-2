@@ -2,7 +2,7 @@
 local mod = modApi:getCurrentMod()
 
 local palette = {
-        image="units/player/Nico_Techno_Psion2_ns.png",
+        image="units/player/Nico_Techno_Shield_ns.png",
         id = mod.id,
         name = "Leader palette",
         colorMap = {

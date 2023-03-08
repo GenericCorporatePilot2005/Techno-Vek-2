@@ -121,6 +121,20 @@ modApi.achievements:add{
 	squad = "Nico_Techno_Veks 2",
 }
 
+local function HOOK_nextTurn(mission)
+	if isMissionBoard() then
+
+		--Diplomatic immunity
+		if not achievements.Nico_Techno_Psion:isComplete() then
+			if Board:GetTurn() == 1 and Game:GetTeamTurn() == TEAM_PLAYER then
+				ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Psion')")
+			end
+		end
+
+	end
+end
+
+
 local hook = function(mission)
     if PsionWasKilled() then
         modApi.achievements:reset("Nico_Techno_Veks 2", Nico_Techno_Psion)

@@ -8,7 +8,7 @@ local path = mod_loader.mods[modApi.currentMod].resourcePath
 	modApi:appendAsset("img/portraits/pilots/Pilot_Nico_Techno_Centipede.png", path .."img/portraits/Pilot_CentipedeMech.png")
 	modApi:appendAsset("img/portraits/pilots/Pilot_Nico_Techno_Leaper.png", path .."img/portraits/Pilot_LeaperMech.png")
 	modApi:appendAsset("img/portraits/pilots/Pilot_Nico_Techno_Psion.png", path .."img/portraits/Pilot_PsionMech.png")
-	modApi:appendAsset("img/portraits/pilots/Pilot_Nico_Techno_Psion2.png", path .."img/portraits/Pilot_PsionMech2.png")
+	modApi:appendAsset("img/portraits/pilots/Pilot_Nico_Techno_Shield.png", path .."img/portraits/Pilot_ShieldMech.png")
 -- locate our mech assets.
 local CentmechPath = path .."img/units/player/"
 -- make a list of our files.
@@ -66,7 +66,7 @@ local files = {
 	"Nico_Techno_Psion_h.png",
 }
 for _, file in ipairs(files) do
-	modApi:appendAsset("img/units/player/".. file, LeapmechPath .. file)
+	modApi:appendAsset("img/units/player/".. file, PsionmechPath .. file)
 end
 local a = ANIMS
 	a.Nico_Techno_Psion = a.MechUnit:new{Image="units/player/Nico_Techno_Psion.png", PosX = -12, PosY = -10}
@@ -76,24 +76,27 @@ local a = ANIMS
 	a.Nico_Techno_Psionw_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Psion_w_broken.png", PosX = -22, PosY = 6}
 	a.Nico_Techno_Psion_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Psion_ns.png"}
 
-	local Psion2mechPath=path .."img/units/player/"
+	local ShieldmechPath=path .."img/units/player/"
 	local files = {
-		"Nico_Techno_Psion2.png",
-		"Nico_Techno_Psion2_a.png",
-		"Nico_Techno_Psion2_w.png",
-		"Nico_Techno_Psion2_w_broken.png",
-		"Nico_Techno_Psion2_broken.png",
-		"Nico_Techno_Psion2_ns.png",
-		"Nico_Techno_Psion2_h.png",
+		"Nico_Techno_Shield.png",
+		"Nico_Techno_Shield_a.png",
+		"Nico_Techno_Shield_w.png",
+		"Nico_Techno_Shield_w_broken.png",
+		"Nico_Techno_Shield_broken.png",
+		"Nico_Techno_Shield_ns.png",
+		"Nico_Techno_Shield_h.png",
 	}
 	local a = ANIMS
-		a.Nico_Techno_Psion2 = a.MechUnit:new{Image="units/player/Nico_Techno_Psion2.png", PosX = -12, PosY = -10}
-		a.Nico_Techno_Psion2a = a.MechUnit:new{Image="units/player/Nico_Techno_Psion2_a.png", PosX = -15, PosY = -10, NumFrames = 4 }
-		a.Nico_Techno_Psion2w = a.MechUnit:new{Image="unitsplayer/Nico_Techno_Psion2_w.png", PosX = -24, PosY = 6 }
-		a.Nico_Techno_Psion2_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Psion2_broken.png", PosX = -22, PosY = -10 }
-		a.Nico_Techno_Psion2w_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Psion2_w_broken.png", PosX = -22, PosY = 6}
-		a.Nico_Techno_Psion2_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Psion2_ns.png"}
+		a.Nico_Techno_Shield = a.MechUnit:new{Image="units/player/Nico_Techno_Shield.png", PosX = -12, PosY = -10}
+		a.Nico_Techno_Shielda = a.MechUnit:new{Image="units/player/Nico_Techno_Shield_a.png", PosX = -15, PosY = -10, NumFrames = 4 }
+		a.Nico_Techno_Shieldw = a.MechUnit:new{Image="unitsplayer/Nico_Techno_Shield_w.png", PosX = -24, PosY = 6 }
+		a.Nico_Techno_Shield_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Shield_broken.png", PosX = -22, PosY = -10 }
+		a.Nico_Techno_Shieldw_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Shield_w_broken.png", PosX = -22, PosY = 6}
+		a.Nico_Techno_Shield_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Shield_ns.png"}
 
+for _, file in ipairs(files) do
+	modApi:appendAsset("img/units/player/".. file, ShieldmechPath .. file)
+end
 CreatePilot{
 	Id = "Pilot_Nico_Techno_Centipede",
 	Personality = "Vek",
@@ -119,7 +122,7 @@ CreatePilot{
 	Blacklist = {"Invulnerable", "Popular","Grid"},
 }
 CreatePilot{
-	Id = "Pilot_Nico_Techno_Psion2",
+	Id = "Pilot_Nico_Techno_Shield",
 	Personality = "Vek",
 	Sex = SEX_VEK,
 	Skill = "Survive_Death",
@@ -299,7 +302,7 @@ trait:add{
 	desc_text = "This unit is unaffected by Webbing.",--description
 }
 
-Nico_Techno_Psion2 = Pawn:new{
+Nico_Techno_Shield = Pawn:new{
 	Name = "Shield T.-Psion",
 
 	-- FlameMech is also Prime, so this is redundant, but if you had no base, you would need a class.
@@ -314,7 +317,7 @@ Nico_Techno_Psion2 = Pawn:new{
 	Flying=true,
 
 	-- reference the animations we set up earlier.
-	Image = "Nico_Techno_Psion2",
+	Image = "Nico_Techno_Shield",
 
 	-- ImageOffset specifies which color scheme we will be using.
 	-- (only apporpirate if you draw your mechs with Archive olive green colors)
@@ -333,6 +336,6 @@ Nico_Techno_Psion2 = Pawn:new{
 	-- impact sounds.
 	ImpactMaterial = IMPACT_INSECT,
 	}
-AddPawn("Nico_Techno_Psion2")
+AddPawn("Nico_Techno_Shield")
 
 --pendiente, hacer posible lo de arriba, ya lograste hacer andar el mod, el resto es refinar los detalles, vos podes!

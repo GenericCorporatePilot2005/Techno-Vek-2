@@ -26,7 +26,7 @@ function mod:init()
 		local result = oldGetStartingSquad(choice, ...)
 
 		if result[1] == "Nico_Techno_Veks" then
-			return add_arrays(result, {"Nico_Techno_Psion2"})
+			return add_arrays(result, {"Nico_Techno_Shield"})
 		end
 
 		return result
