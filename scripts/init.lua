@@ -19,16 +19,16 @@ function mod:init()
 	require(self.scriptPath .."pawns")
 	require(self.scriptPath .."achievements")
 	require(self.scriptPath .."libs/trait")
-	-- add bishop to selection screen
+	-- add extra mech to selection screen
 	modApi.events.onModsInitialized:subscribe(function()
+
 		local oldGetStartingSquad = getStartingSquad
 		function getStartingSquad(choice, ...)
 		local result = oldGetStartingSquad(choice, ...)
 
-		if result[1] == "Nico_Techno_Veks" then
+		if choice == 0 then
 			return add_arrays(result, {"Nico_Techno_Shield"})
 		end
-
 		return result
 		end
 	end)
