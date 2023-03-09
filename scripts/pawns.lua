@@ -325,7 +325,7 @@ Nico_Techno_Shield = Pawn:new{
 	ImageOffset = imageOffset,
 
 	-- Any weapons this mech should start with goes in this table.
-	SkillList = {"Tentacle_attack" ,"Passive_Psions" },
+	SkillList = {"Shield_attack" ,"Passive_Psions" },
 
 	-- movement sounds.
 	SoundLocation = "/enemy/jelly/",

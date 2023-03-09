@@ -7,6 +7,12 @@ local scriptPath = mod_loader.mods[modApi.currentMod].resourcePath
 
 modApi:appendAsset("img/combat/icons/icon_Nico_lava.png", path.."img/combat/icons/icon_Nico_lava.png")
 Location["combat/icons/icon_Nico_lava.png"] = Point(-12,12)
+
+modApi:appendAsset("img/combat/icons/icon_Nico_shield_glow.png", path.."img/combat/icons/icon_Nico_shield_glow.png")
+Location["combat/icons/icon_Nico_shield_glow.png"] = Point(-12,12)
+modApi:appendAsset("img/combat/icons/icon_Nico_shield_miss.png", path.."img/combat/icons/icon_Nico_shield_miss.png")
+Location["combat/icons/icon_Nico_shield_miss.png"] = Point(-12,12)
+
 modApi:appendAsset("img/combat/icons/icon_Nico_smoke_glow.png", path.."img/combat/icons/icon_Nico_smoke_glow.png")
 Location["combat/icons/icon_Nico_smoke_glow.png"] = Point(-20,12)
 -- create a weapon based on Punchmech's Prime Punch.
@@ -252,6 +258,7 @@ Tentacle_attack=Ranged_Artillerymech:new{
 		Building = Point(2,1),
 		Target = Point(2,2),
 		Second_Target=Point(2,1),
+		CustomPawn = "Nico_Techno_Psion",
 	}
 }
 function Tentacle_attack:GetTargetArea(p1)
@@ -513,14 +520,76 @@ Passive_Psions=Passive_Psions:new{
 	}
 }
 
---[[We do this a lot in Vextra for the dragonfly specifically, you can look there, but because there's a lot going on there I'll give a quick run down:
-1. Set a variable called centipedeAttack or something to false. This can be a local variable in the file, just not in any specific function. Do the same thing with a variable called mountainsDestroyed = 0 or something
+modApi:appendAsset("img/weapons/Shield_weapon.png", path .."img/weapons/Shield_weapon.png")
+Shield_attack=Tentacle_attack:new{
+	Name="Psionic Shield Proyector",
+	Class="TechnoVek",
+	Description="Remotely targets a tile, pushing adjacent tiles. shields buildings and allies.",
+	Icon="weapons/Shield_weapon.png",
+	Damage=1,
+	ShieldAd=false,
+	DoDamage=false,
+	PowerCost=0,
+	Upgrades=0,
+	--UpgradeCost={2,2},
+	--UpgradeList={"Shield adjacent","hurt enemy"},
+	UpShot="",
+	LaunchSound = "/weapons/arachnoid_ko",
+	ExplosionCenter="Radio_Burst",
+	TipImage = {
+		Unit = Point(2,0),
+		Enemy = Point(3,2),
+		Building = Point(2,2),
+		Target = Point(2,2),
+		CustomPawn = "Nico_Techno_Shield",
+	}
+}
+function Shield_attack:GetSkillEffect(p1,p2)
+	local ret = SkillEffect()
+	local radio=SpaceDamage(p1,0)--this is the animation that plays on the head of the shooter
+	radio.sAnimation="Radio_Burst"
+	ret:AddBounce(p1, 1)
+	ret:AddDamage(radio)
+	local damage = SpaceDamage(p2,0)
+	ret:AddDelay(0.25)
 
-2. SkillStart: if the weapon id is the centipedes attack then set centipedeAttack to true and reset mountainsDestroyed to 0
+	if Board:GetPawnTeam(p2) == TEAM_PLAYER or Board:IsBuilding(p2) then
+		damage.iShield=1
+		damage.sImageMark="icon_Nico_shield_glow.png"
+		ret:AddDamage(damage)
+	else
+		damage.sImageMark="icon_Nico_shield_miss.png"
+		ret:AddDamage(damage)
+	end
+	if self.BounceAmount ~= 0 then	ret:AddBounce(p2, self.BounceAmount) end
 
-3. SkillEnd: if the weapon id is the centipedes attack then set centipedeAttack back to false (you may want to use modApi:scheduleHook(500, function) to run this a bit later since the skill can technically "end" before the mountain is officially destroyed.
+	for dir = 0, 3 do
+		damage = SpaceDamage(p2 + DIR_VECTORS[dir],  self.DamageOuter)
 
-4. Add one to mountainsDestroyed whenever a mountain is destroyed. If centipedeAttack is true and mountainsDestroyed >= 3 then trigger the achievement!
+		if self.Push == 1 then
+			damage.iPush = dir
+		end
+		damage.sAnimation = self.OuterAnimation..dir
 
-This is just one method and is just the logic behind it. There may be a better way, but I found this way (originally done by Tatu) to be pretty clean. 
-]]
+		if not self.BuildingDamage and Board:IsBuilding(p2 + DIR_VECTORS[dir]) then
+			damage.iDamage = 0
+			damage.sAnimation = "airpush_"..dir
+		end
+
+		ret:AddDamage(damage)
+		if self.BounceOuterAmount ~= 0 then	ret:AddBounce(p2 + DIR_VECTORS[dir], self.BounceOuterAmount) end
+	end
+
+	return ret
+end
+
+Shield_attack_A=Tentacle_attack:new{
+	UpgradeDescription = "Shields mech, friendly units and buildings that are adjacent to mech.",
+	TipImage={
+		Unit = Point(2,2),
+		Enemy = Point(2,0),
+		Target = Point(0,2),
+		friendly = Point(3,2),
+		Building=Point(1,2),
+	}
+}
