@@ -10,8 +10,8 @@ Location["combat/icons/icon_Nico_lava.png"] = Point(-12,12)
 
 modApi:appendAsset("img/combat/icons/icon_Nico_shield_glow.png", path.."img/combat/icons/icon_Nico_shield_glow.png")
 Location["combat/icons/icon_Nico_shield_glow.png"] = Point(-12,12)
-modApi:appendAsset("img/combat/icons/icon_Nico_shield_miss.png", path.."img/combat/icons/icon_Nico_shield_miss.png")
-Location["combat/icons/icon_Nico_shield_miss.png"] = Point(-12,12)
+modApi:appendAsset("img/combat/icons/icon_Nico_power_glow.png", path.."img/combat/icons/icon_Nico_power_glow.png")
+Location["combat/icons/icon_Nico_power_glow.png"] = Point(-12,12)
 
 modApi:appendAsset("img/combat/icons/icon_Nico_smoke_glow.png", path.."img/combat/icons/icon_Nico_smoke_glow.png")
 Location["combat/icons/icon_Nico_smoke_glow.png"] = Point(-20,12)
@@ -485,14 +485,14 @@ Tentacle_attack_B=Tentacle_attack:new{
 	Heal=true,
 	UpgradeDescription="Increases damage to enemies by 1 and heals allies instead of damaging.",
 	TipImage = {
-	Unit = Point(2,4),
-	Second_Origin=Point(2,4),
-	Enemy = Point(2,0),
-	Target = Point(2,2),
-	Second_Target=Point(2,0),
-	Friendly_Damaged = Point(2,2),
-	Length = 5,
-	}
+		Unit = Point(2,4),
+		Second_Origin=Point(2,4),
+		Enemy = Point(2,0),
+		Target = Point(2,2),
+		Second_Target=Point(2,0),
+		Friendly_Damaged = Point(2,2),
+		Length = 5,
+	},
 }
 Tentacle_attack_AB=Tentacle_attack_A:new{
 	Damage=2,
@@ -526,13 +526,14 @@ Shield_attack=Tentacle_attack:new{
 	Class="TechnoVek",
 	Description="Remotely targets a tile, pushing adjacent tiles. shields buildings and allies.",
 	Icon="weapons/Shield_weapon.png",
-	Damage=1,
-	ShieldAd=false,
+	Damage=0,
 	DoDamage=false,
+	ReAct=false,
 	PowerCost=0,
-	Upgrades=0,
-	--UpgradeCost={2,2},
-	--UpgradeList={"Shield adjacent","hurt enemy"},
+	ExplosionCenter="Radio_Burst",
+	Upgrades=1,
+	UpgradeCost={3},
+	UpgradeList={"OverCharge","+2 damage"},
 	UpShot="",
 	LaunchSound = "/weapons/arachnoid_ko",
 	ExplosionCenter="Radio_Burst",
@@ -547,18 +548,38 @@ Shield_attack=Tentacle_attack:new{
 function Shield_attack:GetSkillEffect(p1,p2)
 	local ret = SkillEffect()
 	local radio=SpaceDamage(p1,0)--this is the animation that plays on the head of the shooter
+	radio.iShield=1
 	radio.sAnimation="Radio_Burst"
 	ret:AddBounce(p1, 1)
 	ret:AddDamage(radio)
 	local damage = SpaceDamage(p2,0)
+	damage.sAnimation = self.ExplosionCenter
+	damage.bHide=true
 	ret:AddDelay(0.25)
+	ret:AddDamage(damage)
+	local damage = SpaceDamage(p2,0)
+	ret:AddDelay(0.25)
+	local tpawn = Board:GetPawn(p2)
 
-	if Board:GetPawnTeam(p2) == TEAM_PLAYER or Board:IsBuilding(p2) then
+	if Board:GetPawnTeam(p2) == TEAM_PLAYER and self.ReAct and not tpawn:IsActive() then
+		damage.iShield=1
+		damage.bHide=true
+		damage.sImageMark="icon_Nico_power_glow.png"
+		ret:AddScript(string.format("Board:GetPawn(%s):SetActive(true)", p2:GetString()))
+        ret:AddScript(string.format("Board:GetPawn(%s):SetMovementSpent(false)", p2:GetString()))
+		ret:AddScript(string.format("Board:Ping(%s,GL_Color(0,255,0))", p3:GetString())) -- cool animation
+		ret:AddDamage(damage)
+	elseif Board:GetPawnTeam(p2) == TEAM_PLAYER or Board:IsBuilding(p2) then
 		damage.iShield=1
 		damage.sImageMark="icon_Nico_shield_glow.png"
 		ret:AddDamage(damage)
+	elseif self.DoDamage then
+		damage.iShield=0
+		damage.iDamage=self.Damage
+		ret:AddDamage(damage)
 	else
-		damage.sImageMark="icon_Nico_shield_miss.png"
+		damage.iShield=1
+		damage.sImageMark="icon_Nico_shield_glow.png"
 		ret:AddDamage(damage)
 	end
 	if self.BounceAmount ~= 0 then	ret:AddBounce(p2, self.BounceAmount) end
@@ -579,17 +600,41 @@ function Shield_attack:GetSkillEffect(p1,p2)
 		ret:AddDamage(damage)
 		if self.BounceOuterAmount ~= 0 then	ret:AddBounce(p2 + DIR_VECTORS[dir], self.BounceOuterAmount) end
 	end
-
+	if self.ShieldAd then
+		for i = DIR_START, DIR_END do
+			damage.iShield=1
+			damage.loc = p1 + DIR_VECTORS[i]
+			ret:AddDamage(damage)
+		end
+	end
 	return ret
 end
 
-Shield_attack_A=Tentacle_attack:new{
-	UpgradeDescription = "Shields mech, friendly units and buildings that are adjacent to mech.",
-	TipImage={
-		Unit = Point(2,2),
+Shield_attack_A=Shield_attack:new{
+	UpgradeDescription="if the unit is an ally, it reactivates a unit if it has already acted",
+	ReAct=true,
+	TipImage = {
+		Unit = Point(2,4),
+		Second_Origin=Point(2,4),
 		Enemy = Point(2,0),
-		Target = Point(0,2),
-		friendly = Point(3,2),
-		Building=Point(1,2),
-	}
+		Target = Point(2,2),
+		Second_Target=Point(2,0),
+		Friendly = Point(2,2),
+		Length = 5,
+	},
+}
+
+Shield_attack_B=Shield_attack:new{
+	DoDamage=true,
+	UpgradeDescription = "Does 2 damage to a target if it's not an ally unit or a building instead of shielding",
+	Damage=2,
+	TipImage = {
+		Unit = Point(2,4),
+		Second_Origin=Point(2,4),
+		Enemy = Point(2,0),
+		Target = Point(2,2),
+		Second_Target=Point(2,0),
+		Friendly = Point(2,2),
+		Length = 5,
+	},
 }

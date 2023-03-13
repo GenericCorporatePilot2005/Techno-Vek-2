@@ -303,7 +303,7 @@ trait:add{
 }
 
 Nico_Techno_Shield = Pawn:new{
-	Name = "Shield T.-Psion",
+	Name = "Shield Psion",
 
 	-- FlameMech is also Prime, so this is redundant, but if you had no base, you would need a class.
 	Class = "TechnoVek",
