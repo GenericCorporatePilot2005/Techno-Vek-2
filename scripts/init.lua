@@ -39,8 +39,8 @@ function mod:load( options, version)
 	modApi:addSquad(
 		{
 			"Secret Squad II",		-- title
-			"Nico_Techno_Leaper",	-- mech #1
-			"Nico_Techno_Centipede",-- mech #2
+			"Nico_Techno_Centipede",	-- mech #2
+			"Nico_Techno_Leaper",-- mech #1
 			"Nico_Techno_Psion",	-- mech #3
 			id="Nico_Techno_Veks 2"
 		},
