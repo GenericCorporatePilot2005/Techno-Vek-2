@@ -7,6 +7,8 @@ local scriptPath = mod_loader.mods[modApi.currentMod].resourcePath
 
 modApi:appendAsset("img/combat/icons/icon_Nico_lava.png", path.."img/combat/icons/icon_Nico_lava.png")
 Location["combat/icons/icon_Nico_lava.png"] = Point(-12,12)
+modApi:appendAsset("img/combat/icons/icon_Nico_acid_water.png", path.."img/combat/icons/icon_Nico_acid_water.png")
+Location["combat/icons/icon_Nico_acid_water.png"] = Point(-12,12)
 
 modApi:appendAsset("img/combat/icons/icon_Nico_shield_glow.png", path.."img/combat/icons/icon_Nico_shield_glow.png")
 Location["combat/icons/icon_Nico_shield_glow.png"] = Point(-12,12)
@@ -25,20 +27,25 @@ Location["combat/icons/icon_Nico_smoke_glow.png"] = Point(-20,12)
 Leaper_Talons = LeaperAtk1:new{
 	Name = "Titanite Talons",
 	Class="TechnoVek",
-	Description = "Slice an adjacent tile, greatly damaging and pushing it.",
+	Description = "Slice an adjacent tile, greatly damaging and flipping it, then move away one tile.",
     Icon = "weapons/enemy_leaper2.png", -- notice how the game starts looking in /img/
 	Damage = 3,
-	Push=1,
-	Smoke = false,
+	--Push=1,
+	Fire = false,
+	TwoClick = true,
 	SoundBase = "/enemy/leaper_2",
 	PowerCost=0,
 	Upgrades=2,
-	UpgradeCost = { 2 , 3 },
-	UpgradeList = { "Smoke",  "+2 Damage"  },
+	UpgradeCost = { 2 , 2 },
+	UpgradeList = { "Ignite",  "+1 Damage"  },
 	TipImage = {
-		Unit = Point(2,2),
-		Enemy = Point(2,1),
-		Target = Point(2,1),
+		Unit = Point(2,3),
+		Enemy1 = Point(2,2),
+		Building1 = Point(2,0),
+		Queued1 = Point(2,1),
+		Target = Point(2,2),
+		Second_Click = Point(3,3),
+		CustomEnemy = "Firefly2",
 		CustomPawn = "Nico_Techno_Leaper",
 	}
 }
@@ -46,185 +53,359 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 	local ret = SkillEffect()
 	local direction = GetDirection(p2 - p1)
 
-	local damage = SpaceDamage(p2,self.Damage,direction)
+	local damage = SpaceDamage(p2,self.Damage,DIR_FLIP)
 	damage.sSound="/weapons/sword"
 	damage.sAnimation="SwipeClaw2"
+	damage.bKO_Effect = false
+	Global_Nico_Move_Speed = 1
+	if self.Fire then
+		damage.sImageMark ="combat/icons/icon_fire_glow.png"
+		damage.iFire = 1
+		if Board:IsDeadly(damage,Pawn) then
+			damage.bKO_Effect = true
+			local dam_dealt = self.Damage
+			local dpawn = Board:GetPawn(p2)
+			local health = dpawn:GetHealth()
+			if Board:GetPawn(p1):IsBoosted() then dam_dealt = dam_dealt + 1 end
+			if dpawn:IsArmor() and not dpawn:IsAcid() then dam_dealt = dam_dealt - 1 end
+			if dpawn:IsAcid() then dam_dealt = dam_dealt*2 end
+			Global_Nico_Move_Speed = dam_dealt - health + 1
+		end
+		damage.bKO_Effect = false
+	end
+	ret:AddBounce(p2,3)
+	ret:AddMelee(p2 - DIR_VECTORS[direction], damage)
 
-	if self.Smoke then
-		damage.sImageMark ="combat/icons/icon_Nico_smoke_glow.png"
-		local push=SpaceDamage(p2,0)
-		push.iSmoke = 1
-		push.sAnimation = "airpush_"..direction
-		ret:AddDamage(push)
-		ret:AddDelay(0.40)
-		ret:AddBounce(p2,3)
-		ret:AddMelee(p2-DIR_VECTORS[direction],damage)
-	else
-		damage.loc = p2
-		ret:AddBounce(p2,3)
-		ret:AddMelee(p2 - DIR_VECTORS[direction], damage)
+	--This section of code is custom flip for Firefly Leader and Junebug Leader
+	--Note that it has not been conditioned to check that the Leaders still exist
+	local Mirror = false
+	if Board:IsPawnSpace(p2) and (Board:GetPawn(p2):GetType() == "FireflyBoss" or Board:GetPawn(p2):GetType() == "DNT_JunebugBoss") and Board:GetPawn(p2):IsQueued()then
+		Mirror = true
+	end
+	
+	if Mirror then
+		local threat = Board:GetPawn(p2):GetQueuedTarget()
+		local flip = (GetDirection(threat - p2)+1)%4
+		local newthreat = p2 + DIR_VECTORS[flip]
+		if not Board:IsValid(newthreat) then
+			newthreat = p2 - DIR_VECTORS[flip]
+		end
+		ret:AddScript("Board:GetPawn("..p2:GetString().."):SetQueuedTarget("..newthreat:GetString()..")")
 	end
 
-	if self.Damage==5 and Board:IsPawnSpace(p2) then
+	if (self.Damage==4 or Board:GetPawn(p1):IsBoosted()) and Board:IsPawnSpace(p2) then
 		if Board:GetPawnTeam(p2) == TEAM_ENEMY and Board:GetPawn(p2):IsAcid() then
 			ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Leaper')")
 		end
 	end
 	return ret
 end
+
+function Leaper_Talons:GetSecondTargetArea(p1, p2)
+	if (Global_Nico_Move_Speed == nil or Global_Nico_Move_Speed < 1)  then Global_Nico_Move_Speed = 1 end
+	local ret = PointList()
+	if Board:GetPawn(p1):GetType() == "Nico_Techno_Leaper" then
+		ret = Board:GetReachable(p1, Global_Nico_Move_Speed, 1)
+		local i = 1
+		while i <= ret:size() do
+			if Board:IsTerrain(ret:index(i),TERRAIN_HOLE) or ret:index(i) == p2 then
+				ret:erase(i)
+				i = i - 1
+			end
+			i = i + 1
+		end
+	else
+		ret = Board:GetReachable(p1, Global_Nico_Move_Speed, Board:GetPawn(p1):GetPathProf())
+		local i = 1
+		while i <= ret:size() do
+			if ret:index(i) == p2 then
+				ret:erase(i)
+				i = i - 1
+			end
+			i = i + 1
+		end
+	end
+	return ret
+end
+
+function Leaper_Talons:IsTwoClickException(p1,p2)
+	local second_area = self:GetSecondTargetArea(p1,p2)
+	if second_area:size() == 0 then
+		return true
+	end
+	return false
+end
+
+function Leaper_Talons:GetFinalEffect(p1, p2, p3)--copied from Control Shot since it's the same thing
+	local ret = self:GetSkillEffect(p1, p2)
+	local target_pawn = Board:GetPawn(p1)
+	if target_pawn:GetType() == "Nico_Techno_Leaper" then
+		local move = PointList()
+		move:push_back(p1)
+		move:push_back(p3)
+
+		ret:AddSound("/enemy/leaper_1/move")
+
+		ret:AddLeap(move,FULL_DELAY)
+		ret:AddBounce(p3, 1)
+
+		ret:AddSound("/enemy/leaper_1/land")
+	elseif target_pawn:IsJumper() then
+		ret:AddLeap(Board:GetPath(p1, p3, target_pawn:GetPathProf()),FULL_DELAY)
+	elseif target_pawn:IsBurrower() then
+		ret:AddBurrow(Board:GetPath(p1, p3, target_pawn:GetPathProf()),FULL_DELAY)
+	else
+		ret:AddMove(Board:GetPath(p1, p3, target_pawn:GetPathProf()), FULL_DELAY)
+	end
+	return ret
+end
+
 Leaper_Talons_A= Leaper_Talons:new{
-	Smoke=true,
-	UpgradeDescription = "Smokes the target before slicing it.",
+	Fire=true,
+	UpgradeDescription = "Light the target on fire. If the target is killed, gain bonus movement equal to excess damage dealt.",
 	TipImage = {
-		Unit = Point(1,2),
-		Enemy1 = Point(1,1),
-		Target = Point(1,1),
+		Unit = Point(2,3),
+		Enemy1 = Point(2,2),
+		Building1 = Point(2,0),
 		Queued1 = Point(2,1),
-		Friendly = Point(3,1),
+		Target = Point(2,2),
+		Second_Click = Point(3,3),
 		CustomEnemy = "Firefly2",
 		CustomPawn = "Nico_Techno_Leaper",
-		Length = 4,
 	}
-
 }
 Leaper_Talons_B= Leaper_Talons:new{
-	Damage = 5,
-	UpgradeDescription = "Increases damage by 2.",
-	TipImage = {
-		Unit = Point(2,2),
-		Enemy = Point(2,1),
-		Target = Point(2,1),
-		CustomPawn = "Nico_Techno_Leaper",
-	}
+	Damage = 4,
+	UpgradeDescription = "Increases damage by 1.",
 }
-Leaper_Talons_AB=Leaper_Talons:new{
-	Damage = 5,
-	Smoke=true,
+Leaper_Talons_AB=Leaper_Talons_B:new{
+	Fire=true,
+	CustomTipImage = "Leaper_Talons_Tip",
+}
+
+Leaper_Talons_Tip = Leaper_Talons:new{
+	Class = "TechnoVek",
+	Fire=true,
 	TipImage = {
-		Unit = Point(1,2),
-		Enemy1 = Point(1,1),
-		Target = Point(1,1),
+		Unit = Point(3,2),
+		Enemy1 = Point(2,2),
+		Building1 = Point(2,0),
 		Queued1 = Point(2,1),
-		Friendly = Point(3,1),
-		CustomEnemy = "Firefly2",
+		Target = Point(2,2),
+		Second_Click = Point(3,3),
+		CustomEnemy = "FireflyBoss",
 		CustomPawn = "Nico_Techno_Leaper",
-		Length = 4,
 	}
 }
+
+function Leaper_Talons_Tip:GetSkillEffect(p1,p2)
+	local ret = SkillEffect()
+	ret.piOrigin = Point(3,2)
+	local damage = SpaceDamage(p2,4,DIR_FLIP)
+	damage.sAnimation="SwipeClaw2"
+	if self.Fire then
+		damage.sImageMark ="combat/icons/icon_fire_glow.png"
+		damage.iFire = 1
+	end
+	ret:AddMelee(p1, damage)
+	ret:AddBounce(p2,3)
+	--local damage = SpaceDamage(p2,0)
+	--damage.bHide = true
+	--damage.sAnimation = "ExploRepulseSmall"--"airpush_"..GetDirection(p2 - p1)
+	--ret:AddArtillery(damage,"effects/upshot_confuse.png")
+	ret:AddScript("Board:GetPawn("..Point(2,2):GetString().."):SetQueuedTarget("..Point(1,2):GetString()..")")
+	return ret
+end
+
 Acidic_Vomit=CentipedeAtk1:new{
 	Name="Splattering Gunk",
 	Class="TechnoVek",
-	Description="Fire a damaging projectile that applies A.C.I.D. to nearby targets.",
+	Description="Fire a damaging projectile that applies A.C.I.D. and flips nearby targets.",
 	Icon = "weapons/enemy_firefly2.png",
 	Damage=1,
 	Acid=EFFECT_CREATE,
-	Bacid=false,
-	Bpush=false,
+	Spill = false,
 	BuildingDamage=true,
 	PowerCost=0,
 	Upgrades=2,
 	UpgradeCost={1,3},
-	UpgradeList = { "Pull",  "+1 Damage, Leak"},
+	UpgradeList = { "Building Chain",  "Spill, Melt"},
 	LaunchSound="/weapons/acid_shot",
 	ImpactSound = "/impact/dynamic/enemy_projectile",
 	Projectile = "effects/shot_firefly2",
+	Explosion = "",--ExploFirefly2",
 	TipImage = {
 		Unit = Point(2,3),
-		Enemy = Point(2,1),
+		Enemy1 = Point(2,1),
+		Building1 = Point(1,1),
+		Building2 = Point(3,1),
+		Queued1 = Point(2,2),
 		Target = Point(2,2),
+		CustomEnemy = "Firefly1",
 		CustomPawn = "Nico_Techno_Centipede",
 	}
 }
 function Acidic_Vomit:GetTargetArea(p1)
-
 	local ret = PointList()
-
 	for dir = DIR_START, DIR_END do
 		for i = 1, 8 do
 			local curr = Point(p1 + DIR_VECTORS[dir] * i)
-			if not Board:IsValid(curr) then
+			ret:push_back(curr)
+			if Board:IsBlocked(curr,PATH_PROJECTILE) or not Board:IsValid(curr) then
 				break
 			end
-
-			ret:push_back(curr)
 		end
 	end
-
 	return ret
-
+end
+function Acidic_Vomit:DamageCalc(p1,p2,p3)
+	local dir = GetDirection(p2 - p1)
+    local target = GetProjectileEnd(p1,p2)
+	local dam = SpaceDamage(p3,1)
+	dam.iAcid = 1
+	dam.sAnimation = "Splash_acid"
+	target = GetProjectileEnd(p1,p2)
+	if (p3 == target + DIR_VECTORS[(dir - 1)% 4]) or (p3 == target) or (p3 == target + DIR_VECTORS[(dir + 1)% 4]) then
+		if self.Spill and ((Board:IsAcid(p3) and Board:GetTerrain(p3) ~= TERRAIN_ICE and Board:GetTerrain(p3) ~= TERRAIN_WATER and (not Board:IsBuilding(p3))) or (Board:IsPawnSpace(p3) and Board:GetPawn(p3):GetType() == "AcidVat")) then
+			dam.iAcid = 0
+			dam.iDamage = 0
+			dam.iTerrain = TERRAIN_WATER
+			dam.sImageMark = "combat/icons/icon_Nico_acid_water.png"
+		else
+			dam.iPush = DIR_FLIP
+		end
+		if not self.BuildingDamage then
+			if Board:IsBuilding(p3) then dam.iDamage = 0 end
+		end
+	else
+		if Board:IsAcid(p3) and Board:GetTerrain(p3) ~= TERRAIN_ICE and Board:GetTerrain(p3) ~= TERRAIN_WATER and Board:GetTerrain(p3) ~= TERRAIN_HOLE then
+			dam.iDamage = 0
+			dam.iAcid = 0
+			dam.iTerrain = TERRAIN_WATER
+			dam.sImageMark = "combat/icons/icon_Nico_acid_water.png"
+		end
+	end
+	return dam
 end
 function Acidic_Vomit:GetSkillEffect(p1,p2)
     local ret = SkillEffect()
-    local dir = GetDirection(p2 - p1)
-	local altdir=GetDirection(p1-p2)
+	local dir = GetDirection(p2 - p1)
     local target = GetProjectileEnd(p1,p2)
-	local damage1 = SpaceDamage(target, self.Damage)
-
-	if self.Bacid then
-		local Bacid = SpaceDamage(p1 - DIR_VECTORS[dir],0)
-		Bacid.iAcid = self.Acid
-		Bacid.sAnimation="Splash_acid"
-		ret:AddDamage(Bacid)
+	local damaged_squares = {}--store all squares that have been damaged and exclude them from Building Chain
+	local mirror_squares = {}--store all Firefly Leaders and Junebug Leader squares
+	
+	for j = 1,3 do
+		local position = target + DIR_VECTORS[(dir + 1)% 4]*((j%3)-1)-- this is a small case so (j%3)-1 works, but if you wanted to make a centipede cannon that devastates all tiles perpendicular, use (-1)^j * (j//2) and run for j = 0,15
+		damaged_squares[#damaged_squares+1] = position
+		if position == target then
+			ret:AddProjectile(self:DamageCalc(p1,p2,position),self.Projectile)
+		else
+			ret:AddDamage(self:DamageCalc(p1,p2,position))
+		end
+		if Board:IsPawnSpace(position) and (Board:GetPawn(position):GetType() == "FireflyBoss" or Board:GetPawn(position):GetType() == "DNT_JunebugBoss") and Board:GetPawn(position):IsQueued() then
+			mirror_squares[#mirror_squares+1] = position
+		end
 	end
-
-	damage1.iAcid=self.Acid
-	damage1.sAnimation="Splash_acid"
-	ret:AddBounce(p1,1)
-	local damage2 = SpaceDamage(target + DIR_VECTORS[(dir + 1)% 4], self.Damage)
-	local damage3 = SpaceDamage(target + DIR_VECTORS[(dir - 1)% 4], self.Damage)
-	damage2.iAcid=self.Acid
-	damage2.sAnimation="Splash_acid"
-	damage3.iAcid=self.Acid
-	damage3.sAnimation="Splash_acid"
-
-	ret:AddProjectile(damage1, self.Projectile)
-	if self.Bpush then
-		damage2.iPush=altdir
-		damage3.iPush=altdir
-		ret:AddDamage(damage2)
-		ret:AddDamage(damage3)
-	else
-		ret:AddDamage(damage2)
-		ret:AddDamage(damage3)
+	
+	if self.Spill then
+		local curr = p1 + DIR_VECTORS[dir]
+		while curr ~= target do
+			damaged_squares[#damaged_squares+1] = curr
+			ret:AddDamage(self:DamageCalc(p1,p2,curr))
+			curr = curr + DIR_VECTORS[dir]
+		end
+	end
+	
+	if not self.BuildingDamage then-- this part is based off of Cascading Resonator and calculates what squares to chain to and what undamaged squares to damage
+	-- The logic gets very unwieldy if I try to include this case in the DamageCalc function so I didn't try to merge them - Paradoxica
+		local future = {target, target + DIR_VECTORS[(dir + 1)% 4], target + DIR_VECTORS[(dir - 1)% 4]}
+		local explored = {target}
+		
+		while true do
+			if #future == 0 then
+				break
+			end
+			
+			local curr = pop_back(future)
+			local damage = SpaceDamage(curr,1,DIR_FLIP)
+			damage.iAcid = 1
+			damage.sAnimation = "Splash_acid"
+			if Board:IsBuilding(curr) then
+				damage.iDamage = 0
+				for direc = DIR_START, DIR_END do
+					local n = curr + DIR_VECTORS[direc]
+					if not list_contains(explored, n) then
+						explored[#explored+1] = n
+						future[#future+1] = n
+					end
+				end
+			end
+			local empty_acid_flag = Board:IsAcid(curr) and (Board:GetTerrain(curr) ~= TERRAIN_ICE and Board:GetTerrain(curr) ~= TERRAIN_WATER and Board:GetTerrain(curr) ~= TERRAIN_HOLE and not Board:IsBlocked(curr,PATH_MASSIVE))
+			local acid_vat_flag = Board:IsPawnSpace(curr) and Board:GetPawn(curr):GetType() == "AcidVat"
+			if self.Spill and (empty_acid_flag or acid_vat_flag) then
+				damage = SpaceDamage(curr,0)
+				damage.iTerrain = TERRAIN_WATER
+				damage.sImageMark = "combat/icons/icon_Nico_acid_water.png"
+			end
+			if (curr ~= p1 and not list_contains(damaged_squares, curr)) then
+				ret:AddDamage(damage)
+				if Board:IsPawnSpace(curr) and (Board:GetPawn(curr):GetType() == "FireflyBoss" or Board:GetPawn(curr):GetType() == "DNT_JunebugBoss") and Board:GetPawn(curr):IsQueued() then
+					mirror_squares[#mirror_squares+1] = curr
+				end
+			end
+			ret:AddDelay(0.05)
+			ret:AddBounce(curr,3)
+		end
+	end
+	
+	--This section of code is custom flip for Firefly Leader and Junebug Leader
+	--Note that it has not been conditioned to check that the Leaders still exist
+	for val = 1, #mirror_squares do
+		local curr = mirror_squares[val]
+		local threat = Board:GetPawn(curr):GetQueuedTarget()
+		local flip = (GetDirection(threat - curr)+1)%4
+		local newthreat = curr + DIR_VECTORS[flip]
+		if not Board:IsValid(newthreat) then
+			newthreat = curr - DIR_VECTORS[flip]
+		end
+		ret:AddScript("Board:GetPawn("..curr:GetString().."):SetQueuedTarget("..newthreat:GetString()..")")
 	end
 	
     return ret
 end
 Acidic_Vomit_A=Acidic_Vomit:new{
-	Bpush=true,
 	BuildingDamage=false,
-	UpgradeDescription = "Pulls the outer two targets.",
-	TipImage = {
-		Unit=Point(2,3),
-		Enemy1=Point(2,1),
-		Enemy2=Point(3,1),
-		Enemy3=Point(1,1),
-		Target=Point(2,2),
-		CustomPawn="Nico_Techno_Centipede",
-	}
+	UpgradeDescription = "Chains through buildings instead of damaging them, damaging, flipping and applying A.C.I.D. to adjacent squares.",
 }
 Acidic_Vomit_B=Acidic_Vomit:new{
-	Damage=2,
-	Bacid=true,
-	UpgradeDescription = "Increases damage by 1, and creates A.C.I.D. behind the mech.",
+	Spill = true,
+	UpgradeDescription = "Applies damaging A.C.I.D. on all tiles it passes through, and melts tiles with A.C.I.D. on them.",
 	TipImage = {
-		Unit = Point(2,3),
-		Enemy = Point(2,1),
-		Target = Point(2,2),
+		Unit = Point(2,4),
+		Enemy1 = Point(2,0),
+		Building1 = Point(1,0),
+		Building2 = Point(3,0),
+		Queued1 = Point(2,1),
+		Target = Point(2,3),
+		Second_Origin = Point(2,4),
+		Second_Target = Point(2,3),
+		CustomEnemy = "Firefly1",
 		CustomPawn = "Nico_Techno_Centipede",
 	}
 }
-Acidic_Vomit_AB=Acidic_Vomit:new{
-	Damage=2,
-	Bacid=true,
-	Bpush=true,
+Acidic_Vomit_AB=Acidic_Vomit_A:new{
+	Spill = true,
 	TipImage = {
-		Unit=Point(2,3),
-		Enemy1=Point(2,1),
-		Enemy2=Point(3,1),
-		Enemy3=Point(1,1),
-		Target=Point(2,2),
-		CustomPawn="Nico_Techno_Centipede",
+		Unit = Point(2,4),
+		Enemy1 = Point(2,0),
+		Building1 = Point(1,0),
+		Building2 = Point(3,0),
+		Queued1 = Point(2,1),
+		Target = Point(2,3),
+		Second_Origin = Point(2,4),
+		Second_Target = Point(2,3),
+		CustomEnemy = "Firefly1",
+		CustomPawn = "Nico_Techno_Centipede",
 	}
 }
 ANIMS.Radio_Burst = Animation:new{
@@ -245,7 +426,7 @@ Tentacle_attack=Ranged_Artillerymech:new{
 	PowerCost=0,
 	Upgrades=2,
 	UpgradeCost={2,2},
-	UpgradeList={"Melt","+1 Damage, Heal Ally"},
+	UpgradeList={"Melt, Flip","+1 Damage, Heal Ally"},
 	UpShot="",
 	LaunchSound = "/weapons/arachnoid_ko",
 	ExplosionCenter="Radio_Burst",
@@ -347,13 +528,16 @@ end
 Tentacle_attack_A=Tentacle_attack:new{
 	TwoClick = true,
 	Lava = true,
-	UpgradeDescription = "Melts tile under self into lava, and fire a second non-pushing shot in a different direction.",
+	UpgradeDescription = "Melts tile under self into lava, and fire a second non-pushing shot that flips in a different direction.",
 	TipImage={
 		Unit = Point(2,2),
 		Mountain = Point(0,2),
-		Enemy = Point(2,0),
+		Enemy1 = Point(2,0),
+		Queued1 = Point(2,1),
 		Target = Point(0,2),
 		Second_Click=Point(2,0),
+		CustomEnemy = "Firefly1",
+		CustomPawn = "Nico_Techno_Psion",
 	}
 }
 function Tentacle_attack_A:GetSecondTargetArea(p1,p2)
@@ -441,9 +625,7 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 		if self.BounceOuterAmount ~= 0 then	ret:AddBounce(p2 + DIR_VECTORS[dir], self.BounceOuterAmount) end
 	end
 
-
-
-	local Tanim3 = SpaceDamage(p3,0)
+	local Tanim3 = SpaceDamage(p3,0,DIR_FLIP)
 	local Tanim2 = SpaceDamage(p3,0)
 	Tanim2.sAnimation ="PsionAttack_Back"
 
@@ -454,12 +636,6 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 		ret:AddDamage(Tanim2)
 	elseif Board:IsBuilding(p3) then-- Target Buildings -
 		Tanim3.iDamage = 0--doesn't damage buildings
-		ret:AddDamage(Tanim3)
-		ret:AddDamage(Tanim2)
-	elseif Board:IsCrackable(p3) then --makes cracks
-		Tanim3.iDamage=self.Damage--harms enemies
-		Tanim3.sAnimation ="PsionAttack_Front"
-		Tanim3.iCrack = EFFECT_CREATE
 		ret:AddDamage(Tanim3)
 		ret:AddDamage(Tanim2)
 	else
@@ -477,6 +653,23 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 		slava.iTerrain = TERRAIN_LAVA
 		ret:AddDamage(slava)
 	end
+	
+	--This section of code is custom flip for Firefly Leader and Junebug Leader
+	--Note that it has not been conditioned to check that the Leaders still exist
+	local Mirror = false
+	if Board:IsPawnSpace(p3) and (Board:GetPawn(p3):GetType() == "FireflyBoss" or Board:GetPawn(p3):GetType() == "DNT_JunebugBoss") and Board:GetPawn(p3):IsQueued()then
+		Mirror = true
+	end
+	
+	if Mirror then
+		local threat = Board:GetPawn(p3):GetQueuedTarget()
+		local flip = (GetDirection(threat - p3)+1)%4
+		local newthreat = p3 + DIR_VECTORS[flip]
+		if not Board:IsValid(newthreat) then
+			newthreat = p3 - DIR_VECTORS[flip]
+		end
+		ret:AddScript("Board:GetPawn("..p3:GetString().."):SetQueuedTarget("..newthreat:GetString()..")")
+	end
 
 	return ret
 end
@@ -491,6 +684,7 @@ Tentacle_attack_B=Tentacle_attack:new{
 		Target = Point(2,2),
 		Second_Target=Point(2,0),
 		Friendly_Damaged = Point(2,2),
+		CustomPawn = "Nico_Techno_Psion",
 		Length = 5,
 	},
 }
@@ -502,9 +696,12 @@ Tentacle_attack_AB=Tentacle_attack_A:new{
 	TipImage = {
 		Unit = Point(2,2),
 		Friendly_Damaged = Point(0,2),
-		Enemy = Point(2,0),
+		Enemy1 = Point(2,0),
+		Queued1 = Point(2,1),
 		Target = Point(0,2),
 		Second_Click=Point(2,0),
+		CustomEnemy = "Firefly1",
+		CustomPawn = "Nico_Techno_Psion",
 	}
 }
 Passive_Psions=Passive_Psions:new{
@@ -522,9 +719,9 @@ Passive_Psions=Passive_Psions:new{
 
 modApi:appendAsset("img/weapons/Shield_weapon.png", path .."img/weapons/Shield_weapon.png")
 Shield_attack=Tentacle_attack:new{
-	Name="Psionic Shield Proyector",
+	Name="Psionic Projector",
 	Class="TechnoVek",
-	Description="Remotely targets a tile, pushing adjacent tiles. shields buildings and allies.",
+	Description="Remotely target a tile, pushing adjacent tiles. Shields Buildings and allied units.",
 	Icon="weapons/Shield_weapon.png",
 	Damage=0,
 	DoDamage=false,
@@ -567,7 +764,7 @@ function Shield_attack:GetSkillEffect(p1,p2)
 		damage.sImageMark="icon_Nico_power_glow.png"
 		ret:AddScript(string.format("Board:GetPawn(%s):SetActive(true)", p2:GetString()))
         ret:AddScript(string.format("Board:GetPawn(%s):SetMovementSpent(false)", p2:GetString()))
-		ret:AddScript(string.format("Board:Ping(%s,GL_Color(0,255,0))", p3:GetString())) -- cool animation
+		ret:AddScript(string.format("Board:Ping(%s,GL_Color(0,255,0))", p2:GetString())) -- cool animation
 		ret:AddDamage(damage)
 	elseif Board:GetPawnTeam(p2) == TEAM_PLAYER or Board:IsBuilding(p2) then
 		damage.iShield=1
@@ -611,7 +808,7 @@ function Shield_attack:GetSkillEffect(p1,p2)
 end
 
 Shield_attack_A=Shield_attack:new{
-	UpgradeDescription="if the unit is an ally, it reactivates a unit if it has already acted",
+	UpgradeDescription="If the unit is an ally, reactivates it if it has already acted.",
 	ReAct=true,
 	TipImage = {
 		Unit = Point(2,4),
