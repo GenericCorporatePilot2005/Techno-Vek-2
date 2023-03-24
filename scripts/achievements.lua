@@ -10,7 +10,6 @@ function Nico_Techno_Veks2squad_Chievo(id)
 	if IsTestMechScenario() then return end
 	-- exit if current one is unlocked
 	modApi.achievements:trigger(modid,id)
-	
 end
 local imgs = {
 	"Leaper",
@@ -27,7 +26,7 @@ end
 modApi.achievements:add{
 	id = "Nico_Techno_Leaper",
 	name = "Killer King",
-	tip = "Deal at least 10 damage with a single slice of the Titanite Talons",
+	tip = "Deal at least 8 damage with a single slice of the Titanite Talons",
 	image = "img/achievements/Nico_Techno_Leaper.png",
 	squad = "Nico_Techno_Veks 2",
 	objective=1,
@@ -42,22 +41,25 @@ modApi.achievements:add{
 	objective=1,
 }
 
-modApi.achievements:add{
+Nico_Diplo_Immune = modApi.achievements:add{
 	id = "Nico_Techno_Psion",
-	name = "Diplomatic immunity",
+	name = "Diplomatic Immunity",
 	tip = "Don't kill any Psions over the course of 3 Corporate Islands (Psion Abomination excluded)",
 	image = "img/achievements/Nico_Techno_Psion.png",
 	squad = "Nico_Techno_Veks 2",
-	objective=1,
+	objective = {
+		islands = 3,
+		valid = true,
+	},
+	global = global,
 }
-
 
 modApi.achievements:add{
 	id = "Nico_Techno_Shield",
 	global = "Secret Rewards",
 	secret=true,
 	name = "The Call of The Psion",
-	tip = "New Mech Unlocked on random and custom squad",
+	tip = "New Mech Unlocked on Random and Custom Squads",
 	image = "img/achievements/Nico_Techno_Shield.png",
 	squad = "Nico_Techno_Veks 2",
 }
@@ -130,6 +132,37 @@ end
 	end
 	end
 
+--Psion's achievement
+
+	local function Nico_MissionEnd(mission)--Diplomatic Immunity
+		local progress = Nico_Diplo_Immune:getProgress()
+		mission.Nico_PsionDeath = false or mission.Nico_PsionDeath
+		if mission.Nico_PsionDeath then progress.valid = false end
+		if not Nico_Diplo_Immune:isComplete() then
+			if mission.BossMission and progress.valid and progress.islands == 3 and Board:GetSize() ~= Point(6,6) and GAME.additionalSquadData.squad == modid and not IsTestMechScenario() then --Third island boss and valid
+				modApi.achievements:trigger(modid,id)
+			end
+		end
+	end
+	local function Nico_PsionKilled(mission, pawn)
+		if (_G[pawn:GetType()].Image == "DNT_jelly" or pawn:GetLeader() ~= 0) and pawn:GetType() ~= "Jelly_Boss" then
+			mission.Nico_PsionDeath = true
+		end
+	end
+	local function Nico_onIslandLeft(island)
+		--Diplomatic Immunity Islands
+		local progress = Nico_Diplo_Immune:getProgress()
+		if progress.valid then
+			Nico_Diplo_Immune:addProgress({islands=1})
+		end
+	end
+	local function Nico_GameStart()
+		local progress = Nico_Diplo_Immune:getProgress()
+		if not Nico_Diplo_Immune:isComplete() then
+			Nico_Diplo_Immune:setProgress({islands=0, valid = (GAME.additionalSquadData.squad == modid)})
+		end
+	end
+
 	local function EVENT_onModsLoaded() --This function will run when the mod is loaded
 	--modapiext is requested in the init.lua
 	global_gunk = false
@@ -137,14 +170,15 @@ end
 	modapiext:addSkillStartHook(getMountainPreCount)
 	--This line tells us that we want to run the above function every time a skill has just begun executing (including skill previews)
 	modApi:addSaveGameHook(mountainChecker)
-	--This line tells us that we want to run the above function every time the game is saved (so after all weapon effects and death effects have processed, e.g. Boom Bots, Unstable Boulders)
+	--This line tells us that we want to run the above function every time the game is saved (so after all weapon effects and death effects and hooks have processed, e.g. Boom Bots, Unstable Boulders)
+	modApi:addMissionEndHook(Nico_MissionEnd)
+	--This line tells us that we want to run the above function every time a mission is over
+	modapiext:addPawnKilledHook(Nico_PsionKilled)
 	end
 
 	modApi.events.onModsLoaded:subscribe(EVENT_onModsLoaded)
 
---Psion's achievement
-
-
-
+	modApi.events.onIslandLeft:subscribe(Nico_onIslandLeft)
+	modApi.events.onPostStartGame:subscribe(Nico_GameStart)
 
 return this
