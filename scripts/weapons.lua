@@ -125,12 +125,13 @@ function Leaper_Talons:GetSecondTargetArea(p1, p2)
 			i = i + 1
 		end
 	end
+	ret:push_back(p1)
 	return ret
 end
 
 function Leaper_Talons:IsTwoClickException(p1,p2)
 	local second_area = self:GetSecondTargetArea(p1,p2)
-	if second_area:size() == 0 then
+	if second_area:size() == 1 then
 		return true
 	end
 	return false
@@ -138,6 +139,7 @@ end
 
 function Leaper_Talons:GetFinalEffect(p1, p2, p3)--copied from Control Shot since it's the same thing
 	local ret = self:GetSkillEffect(p1, p2)
+	if p1 == p3 then return ret end
 	local target_pawn = Board:GetPawn(p1)
 	if target_pawn:GetType() == "Nico_Techno_Leaper" then
 		local move = PointList()
