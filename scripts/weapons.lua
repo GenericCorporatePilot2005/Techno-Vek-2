@@ -266,7 +266,7 @@ function Acidic_Vomit:DamageCalc(p1,p2,p3)
 	dam.sAnimation = "Splash_acid"
 	target = GetProjectileEnd(p1,p2)
 	if (p3 == target + DIR_VECTORS[(dir - 1)% 4]) or (p3 == target) or (p3 == target + DIR_VECTORS[(dir + 1)% 4]) then
-		if self.Spill and ((Board:IsAcid(p3) and Board:GetTerrain(p3) ~= TERRAIN_ICE and Board:GetTerrain(p3) ~= TERRAIN_WATER and (not Board:IsBuilding(p3))) or (Board:IsPawnSpace(p3) and Board:GetPawn(p3):GetType() == "AcidVat")) then
+		if self.Spill and ((Board:IsAcid(p3) and Board:GetTerrain(p3) ~= TERRAIN_ICE and Board:GetTerrain(p3) ~= TERRAIN_WATER and (not Board:IsCracked(p3)) and (not Board:IsBuilding(p3))) or (Board:IsPawnSpace(p3) and Board:GetPawn(p3):GetType() == "AcidVat")) then
 			dam.iAcid = 0
 			dam.iDamage = 0
 			dam.iTerrain = TERRAIN_WATER
@@ -278,7 +278,7 @@ function Acidic_Vomit:DamageCalc(p1,p2,p3)
 			if Board:IsBuilding(p3) then dam.iDamage = 0 end
 		end
 	else
-		if Board:IsAcid(p3) and Board:GetTerrain(p3) ~= TERRAIN_ICE and Board:GetTerrain(p3) ~= TERRAIN_WATER and Board:GetTerrain(p3) ~= TERRAIN_HOLE then
+		if Board:IsAcid(p3) and Board:GetTerrain(p3) ~= TERRAIN_ICE and Board:GetTerrain(p3) ~= TERRAIN_WATER and (not Board:IsCracked(p3)) and Board:GetTerrain(p3) ~= TERRAIN_HOLE then
 			dam.iDamage = 0
 			dam.iAcid = 0
 			dam.iTerrain = TERRAIN_WATER
@@ -340,7 +340,7 @@ function Acidic_Vomit:GetSkillEffect(p1,p2)
 					end
 				end
 			end
-			local empty_acid_flag = Board:IsAcid(curr) and (Board:GetTerrain(curr) ~= TERRAIN_ICE and Board:GetTerrain(curr) ~= TERRAIN_WATER and Board:GetTerrain(curr) ~= TERRAIN_HOLE and not Board:IsBlocked(curr,PATH_MASSIVE))
+			local empty_acid_flag = Board:IsAcid(curr) and (Board:GetTerrain(curr) ~= TERRAIN_ICE and Board:GetTerrain(curr) ~= TERRAIN_WATER and (not Board:IsCracked(curr)) and Board:GetTerrain(curr) ~= TERRAIN_HOLE and not Board:IsBlocked(curr,PATH_MASSIVE))
 			local acid_vat_flag = Board:IsPawnSpace(curr) and Board:GetPawn(curr):GetType() == "AcidVat"
 			if self.Spill and (empty_acid_flag or acid_vat_flag) then
 				damage = SpaceDamage(curr,0)
