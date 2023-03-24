@@ -35,7 +35,7 @@ modApi.achievements:add{
 modApi.achievements:add{
 	id = "Nico_Techno_Centipede",
 	name = "Disposal Unit",
-	tip = "Destroy at least 3 mountains with a single shot of the Splattering Gunk",
+	tip = "Destroy at least 4 mountains with a single shot of the Splattering Gunk",
 	image = "img/achievements/Nico_Techno_Centipede.png",
 	squad = "Nico_Techno_Veks 2",
 	objective=1,
@@ -126,7 +126,7 @@ end
 	local precount = global_mountains_precount
 	local postcount = getMountainPostCount()
 	local ret = SkillEffect()
-	if isRealMission() and gunk and precount - postcount > 2 then
+	if isRealMission() and gunk and precount - postcount > 3 then
 		ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Centipede')")
 		Board:AddEffect(ret)
 	end
