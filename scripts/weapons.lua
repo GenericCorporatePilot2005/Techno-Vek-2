@@ -342,9 +342,7 @@ function Acidic_Vomit:GetSkillEffect(p1,p2)
 					end
 				end
 			end
-			local empty_acid_flag = Board:IsAcid(curr) and (Board:GetTerrain(curr) ~= TERRAIN_ICE and Board:GetTerrain(curr) ~= TERRAIN_WATER and (not Board:IsCracked(curr)) and Board:GetTerrain(curr) ~= TERRAIN_HOLE and not Board:IsBlocked(curr,PATH_MASSIVE))
-			local acid_vat_flag = Board:IsPawnSpace(curr) and Board:GetPawn(curr):GetType() == "AcidVat"
-			if self.Spill and (empty_acid_flag or acid_vat_flag) then
+			if self.Spill and ((Board:IsAcid(curr) and Board:GetTerrain(curr) ~= TERRAIN_ICE and Board:GetTerrain(curr) ~= TERRAIN_WATER and (not Board:IsCracked(curr)) and (not Board:IsBuilding(curr))) or (Board:IsPawnSpace(curr) and Board:GetPawn(curr):GetType() == "AcidVat")) then
 				damage = SpaceDamage(curr,0)
 				damage.iTerrain = TERRAIN_WATER
 				damage.sImageMark = "combat/icons/icon_Nico_acid_water.png"
