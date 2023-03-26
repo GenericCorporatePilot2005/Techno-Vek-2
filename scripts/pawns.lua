@@ -25,12 +25,12 @@ for _, file in ipairs(files) do
 	modApi:appendAsset("img/units/player/".. file, CentmechPath .. file)
 end
 local a=ANIMS
-	a.Nico_Techno_Centipede =a.MechUnit:new{Image="units/player/Nico_Techno_Centipede.png", PosX = -22, PosY = 4}
+	a.Nico_Techno_Centipede =a.MechUnit:new{Image="units/player/Nico_Techno_Centipede.png", PosX = -19, PosY = 4}
 	a.Nico_Techno_Centipedea = a.MechUnit:new{Image="units/player/Nico_Techno_Centipede_a.png",  PosX = -20, PosY = 4, NumFrames = 4 }
 	a.Nico_Techno_Centipedew = a.MechUnit:new{Image="units/player/Nico_Techno_Centipede_w.png", -22, PosY = 10}
 	a.Nico_Techno_Centipede_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Centipede_broken.png", PosX = -22, PosY = 4 }
 	a.Nico_Techno_Centipedew_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Centipede_w_broken.png", PosX = -20, PosY = 10 }
-	a.Nico_Techno_Centipede_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Centipede_ns.png"}
+	a.Nico_Techno_Centipede_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Centipede_ns.png" }
 
 -- locate our mech assets.
 local LeapmechPath = path .."img/units/player/"
@@ -53,7 +53,7 @@ local a=ANIMS
 	a.Nico_Techno_Leaperw =	a.MechUnit:new{Image = "units/player/Nico_Techno_Leaper_w.png", PosX = -19, PosY = 6 }
 	a.Nico_Techno_Leaper_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Leaper_broken.png", PosX = -21, PosY = -3 }
 	a.Nico_Techno_Leaperw_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Leaper_w_broken.png", PosX = -19, PosY = 6 }
-	a.Nico_Techno_Leaper_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Leaper_ns.png"}
+	a.Nico_Techno_Leaper_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Leaper_ns.png" }
 
 local PsionmechPath=path .."img/units/player/"
 local files = {
@@ -69,12 +69,12 @@ for _, file in ipairs(files) do
 	modApi:appendAsset("img/units/player/".. file, PsionmechPath .. file)
 end
 local a = ANIMS
-	a.Nico_Techno_Psion = a.MechUnit:new{Image="units/player/Nico_Techno_Psion.png", PosX = -12, PosY = -10}
+	a.Nico_Techno_Psion = a.MechUnit:new{Image="units/player/Nico_Techno_Psion.png", PosX = -27, PosY = -14}
 	a.Nico_Techno_Psiona = a.MechUnit:new{Image="units/player/Nico_Techno_Psion_a.png", PosX = -15, PosY = -10, NumFrames = 4 }
 	a.Nico_Techno_Psionw = a.MechUnit:new{Image="unitsplayer/Nico_Techno_Psion_w.png", PosX = -24, PosY = 6 }
 	a.Nico_Techno_Psion_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Psion_broken.png", PosX = -22, PosY = -10 }
 	a.Nico_Techno_Psionw_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Psion_w_broken.png", PosX = -22, PosY = 6}
-	a.Nico_Techno_Psion_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Psion_ns.png"}
+	a.Nico_Techno_Psion_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Psion_ns.png" }
 
 	local ShieldmechPath=path .."img/units/player/"
 	local files = {
@@ -87,7 +87,7 @@ local a = ANIMS
 		"Nico_Techno_Shield_h.png",
 	}
 	local a = ANIMS
-		a.Nico_Techno_Shield = a.MechUnit:new{Image="units/player/Nico_Techno_Shield.png", PosX = -12, PosY = -10}
+		a.Nico_Techno_Shield = a.MechUnit:new{Image="units/player/Nico_Techno_Shield.png", PosX = -27, PosY = -14}
 		a.Nico_Techno_Shielda = a.MechUnit:new{Image="units/player/Nico_Techno_Shield_a.png", PosX = -15, PosY = -10, NumFrames = 4 }
 		a.Nico_Techno_Shieldw = a.MechUnit:new{Image="unitsplayer/Nico_Techno_Shield_w.png", PosX = -24, PosY = 6 }
 		a.Nico_Techno_Shield_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Shield_broken.png", PosX = -22, PosY = -10 }
