@@ -268,7 +268,7 @@ function Acidic_Vomit:DamageCalc(p1,p2,p3)
 	dam.sAnimation = "Splash_acid"
 	target = GetProjectileEnd(p1,p2)
 	if (p3 == target + DIR_VECTORS[(dir - 1)% 4]) or (p3 == target) or (p3 == target + DIR_VECTORS[(dir + 1)% 4]) then
-		if self.Spill and ((Board:IsAcid(p3) and Board:GetTerrain(p3) ~= TERRAIN_ICE and Board:GetTerrain(p3) ~= TERRAIN_WATER and (not Board:IsCracked(p3)) and (not Board:IsBuilding(p3))) or (Board:IsPawnSpace(p3) and Board:GetPawn(p3):GetType() == "AcidVat")) then
+		if self.Spill and ((Board:IsAcid(p3) and Board:GetTerrain(p3) ~= TERRAIN_ICE and Board:GetTerrain(p3) ~= TERRAIN_WATER and (not Board:IsCracked(p3)) and (not Board:IsBuilding(p3))) or (Board:IsPawnSpace(p3) and (Board:GetPawn(p3):GetType() == "AcidVat" or Board:GetPawn(p3):GetType() == "Storm_Generator"))) then
 			dam.iAcid = 0
 			dam.iDamage = 0
 			dam.iTerrain = TERRAIN_WATER
@@ -342,7 +342,7 @@ function Acidic_Vomit:GetSkillEffect(p1,p2)
 					end
 				end
 			end
-			if self.Spill and ((Board:IsAcid(curr) and Board:GetTerrain(curr) ~= TERRAIN_ICE and Board:GetTerrain(curr) ~= TERRAIN_WATER and (not Board:IsCracked(curr)) and (not Board:IsBuilding(curr))) or (Board:IsPawnSpace(curr) and Board:GetPawn(curr):GetType() == "AcidVat")) then
+			if self.Spill and ((Board:IsAcid(curr) and Board:GetTerrain(curr) ~= TERRAIN_ICE and Board:GetTerrain(curr) ~= TERRAIN_WATER and (not Board:IsCracked(curr)) and (not Board:IsBuilding(curr))) or (Board:IsPawnSpace(curr) and (Board:GetPawn(curr):GetType() == "AcidVat" or Board:GetPawn(curr):GetType() == "Storm_Generator"))) then
 				damage = SpaceDamage(curr,0)
 				damage.iTerrain = TERRAIN_WATER
 				damage.sImageMark = "combat/icons/icon_Nico_acid_water.png"
