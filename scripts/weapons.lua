@@ -183,6 +183,16 @@ Leaper_Talons_A= Leaper_Talons:new{
 Leaper_Talons_B= Leaper_Talons:new{
 	Damage = 4,
 	UpgradeDescription = "Increases damage by 1 and gain +1 bonus movement.",
+	TipImage = {
+		Unit = Point(2,3),
+		Enemy1 = Point(2,2),
+		Building1 = Point(2,0),
+		Queued1 = Point(2,1),
+		Target = Point(2,2),
+		Second_Click = Point(4,3),
+		CustomEnemy = "Firefly2",
+		CustomPawn = "Nico_Techno_Leaper",
+	}
 }
 Leaper_Talons_AB=Leaper_Talons_B:new{
 	Fire=true,
@@ -198,7 +208,7 @@ Leaper_Talons_Tip = Leaper_Talons:new{
 		Building1 = Point(2,0),
 		Queued1 = Point(2,1),
 		Target = Point(2,2),
-		Second_Click = Point(3,3),
+		Second_Click = Point(4,3),
 		CustomEnemy = "FireflyBoss",
 		CustomPawn = "Nico_Techno_Leaper",
 	}
