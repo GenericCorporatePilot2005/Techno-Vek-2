@@ -102,7 +102,11 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 end
 
 function Leaper_Talons:GetSecondTargetArea(p1, p2)
-	if (Global_Nico_Move_Speed == nil or Global_Nico_Move_Speed < 1)  then Global_Nico_Move_Speed = (self.Damage == 4 and 2) or 1 end
+	if self.Damage == 4 then
+		if (Global_Nico_Move_Speed == nil or Global_Nico_Move_Speed < 2) then Global_Nico_Move_Speed = 2 end
+	elseif (Global_Nico_Move_Speed == nil or Global_Nico_Move_Speed < 1) then
+		Global_Nico_Move_Speed = 1
+	end
 	local ret = PointList()
 	if Board:GetPawn(p1):GetType() == "Nico_Techno_Leaper" then
 		ret = Board:GetReachable(p1, Global_Nico_Move_Speed, 1)
