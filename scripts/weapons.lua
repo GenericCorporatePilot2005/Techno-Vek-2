@@ -37,7 +37,7 @@ Leaper_Talons = LeaperAtk1:new{
 	PowerCost=0,
 	Upgrades=2,
 	UpgradeCost = { 2 , 2 },
-	UpgradeList = { "Ignite",  "+1 Damage"  },
+	UpgradeList = { "Ignite & Overkill Move",  "Damage & Move"  },
 	TipImage = {
 		Unit = Point(2,3),
 		Enemy1 = Point(2,2),
@@ -57,7 +57,7 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 	damage.sSound="/weapons/sword"
 	damage.sAnimation="SwipeClaw2"
 	damage.bKO_Effect = false
-	Global_Nico_Move_Speed = 1
+	Global_Nico_Move_Speed = (self.Damage == 4 and 2) or 1
 	if self.Fire then
 		damage.sImageMark ="combat/icons/icon_fire_glow.png"
 		damage.iFire = 1
@@ -102,7 +102,7 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 end
 
 function Leaper_Talons:GetSecondTargetArea(p1, p2)
-	if (Global_Nico_Move_Speed == nil or Global_Nico_Move_Speed < 1)  then Global_Nico_Move_Speed = 1 end
+	if (Global_Nico_Move_Speed == nil or Global_Nico_Move_Speed < 1)  then Global_Nico_Move_Speed = (self.Damage == 4 and 2) or 1 end
 	local ret = PointList()
 	if Board:GetPawn(p1):GetType() == "Nico_Techno_Leaper" then
 		ret = Board:GetReachable(p1, Global_Nico_Move_Speed, 1)
@@ -178,7 +178,7 @@ Leaper_Talons_A= Leaper_Talons:new{
 }
 Leaper_Talons_B= Leaper_Talons:new{
 	Damage = 4,
-	UpgradeDescription = "Increases damage by 1.",
+	UpgradeDescription = "Increases damage by 1 and gain +1 bonus movement.",
 }
 Leaper_Talons_AB=Leaper_Talons_B:new{
 	Fire=true,
