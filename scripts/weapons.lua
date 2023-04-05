@@ -808,7 +808,7 @@ function Shield_attack:GetSkillEffect(p1,p2)
 end
 
 Shield_attack_A=Shield_attack:new{
-	UpgradeDescription="If the unit is an ally, reactivates it if it has already acted.",
+	UpgradeDescription="Reactivates allied units if they have already acted.",
 	ReAct=true,
 	TipImage = {
 		Unit = Point(2,4),
@@ -823,7 +823,7 @@ Shield_attack_A=Shield_attack:new{
 
 Shield_attack_B=Shield_attack:new{
 	DoDamage=true,
-	UpgradeDescription = "Does 2 damage to a target if it's not an ally unit or a building instead of shielding",
+	UpgradeDescription = "Deals 2 damage to non-friendly targets instead of shielding.",
 	Damage=2,
 	TipImage = {
 		Unit = Point(2,4),
