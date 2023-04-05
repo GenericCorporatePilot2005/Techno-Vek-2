@@ -15,8 +15,6 @@ Location["combat/icons/icon_Nico_shield_glow.png"] = Point(-12,12)
 modApi:appendAsset("img/combat/icons/icon_Nico_power_glow.png", path.."img/combat/icons/icon_Nico_power_glow.png")
 Location["combat/icons/icon_Nico_power_glow.png"] = Point(-12,12)
 
-modApi:appendAsset("img/combat/icons/icon_Nico_smoke_glow.png", path.."img/combat/icons/icon_Nico_smoke_glow.png")
-Location["combat/icons/icon_Nico_smoke_glow.png"] = Point(-20,12)
 -- create a weapon based on Punchmech's Prime Punch.
 -- using the new function creates a copy of an existing table,
 -- and will use the variables and  function from it, unless we specify new values.
@@ -49,6 +47,8 @@ Leaper_Talons = LeaperAtk1:new{
 		CustomPawn = "Nico_Techno_Leaper",
 	}
 }
+modApi:addWeaponDrop("Leaper_Talons")
+
 function Leaper_Talons:GetSkillEffect(p1, p2)
 	local ret = SkillEffect()
 	local direction = GetDirection(p2 - p1)
@@ -261,6 +261,9 @@ Acidic_Vomit=CentipedeAtk1:new{
 		CustomPawn = "Nico_Techno_Centipede",
 	}
 }
+
+modApi:addWeaponDrop("Acidic_Vomit")
+
 function Acidic_Vomit:GetTargetArea(p1)
 	local ret = PointList()
 	for dir = DIR_START, DIR_END do
@@ -456,6 +459,9 @@ Tentacle_attack=Ranged_Artillerymech:new{
 		CustomPawn = "Nico_Techno_Psion",
 	}
 }
+
+modApi:addWeaponDrop("Tentacle_attack")
+
 function Tentacle_attack:GetTargetArea(p1)
 	local ret = PointList()
 
@@ -732,6 +738,7 @@ Passive_Psions=Passive_Psions:new{
 }
 
 modApi:appendAsset("img/weapons/Shield_weapon.png", path .."img/weapons/Shield_weapon.png")
+
 Shield_attack=Tentacle_attack:new{
 	Name="Psionic Projector",
 	Class="TechnoVek",
