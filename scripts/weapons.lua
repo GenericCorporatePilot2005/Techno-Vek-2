@@ -69,7 +69,7 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 			if Board:GetPawn(p1):IsBoosted() then dam_dealt = dam_dealt + 1 end
 			if dpawn:IsArmor() and not dpawn:IsAcid() then dam_dealt = dam_dealt - 1 end
 			if dpawn:IsAcid() then dam_dealt = dam_dealt*2 end
-			Global_Nico_Move_Speed = dam_dealt - health + 1
+			Global_Nico_Move_Speed = Global_Nico_Move_Speed + dam_dealt - health
 		end
 		damage.bKO_Effect = false
 	end
