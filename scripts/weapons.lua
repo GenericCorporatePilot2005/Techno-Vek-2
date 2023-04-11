@@ -763,6 +763,15 @@ Shield_attack=Tentacle_attack:new{
 		CustomPawn = "Nico_Techno_Shield",
 	}
 }
+modApi:appendAsset("img/effects/shield_explo.png", path.. "img/effects/shield_explo.png")
+ANIMS.shield_explo = Animation:new{
+	Image = "effects/shield_explo.png",
+	NumFrames = 8,
+	Time = 0.05,
+	
+	PosX = -33,
+	PosY = -14
+}
 function Shield_attack:GetSkillEffect(p1,p2)
 	local ret = SkillEffect()
 	local radio=SpaceDamage(p1,0)--this is the animation that plays on the head of the shooter
@@ -778,21 +787,22 @@ function Shield_attack:GetSkillEffect(p1,p2)
 	local damage = SpaceDamage(p2,0)
 	ret:AddDelay(0.25)
 	local tpawn = Board:GetPawn(p2)
+	local powered=SpaceDamage(p2,0)
 
 	if Board:GetPawnTeam(p2) == TEAM_PLAYER and self.ReAct and not tpawn:IsActive() then
 		damage.iShield=1
-		damage.bHide=true
-		damage.sImageMark="icon_Nico_power_glow.png"
+		powered.sImageMark="icon_Nico_shield_glow.png"
+		ret:AddDamage(powered)
 		ret:AddScript(string.format("Board:GetPawn(%s):SetActive(true)", p2:GetString()))
         ret:AddScript(string.format("Board:GetPawn(%s):SetMovementSpent(false)", p2:GetString()))
-		ret:AddScript(string.format("Board:Ping(%s,GL_Color(0,255,0))", p2:GetString())) -- cool animation
+		ret:AddScript(string.format("Board:Ping(%s,GL_Color(197,255,255))", p2:GetString())) -- cool animation
 		ret:AddDamage(damage)
 	elseif Board:GetPawnTeam(p2) == TEAM_PLAYER or Board:IsBuilding(p2) then
 		damage.iShield=1
-		damage.sImageMark="icon_Nico_shield_glow.png"
 		ret:AddDamage(damage)
 	elseif self.DoDamage then
 		damage.iShield=0
+		damage.sAnimation="shield_explo"
 		damage.iDamage=self.Damage
 		ret:AddDamage(damage)
 	else
@@ -855,4 +865,10 @@ Shield_attack_B=Shield_attack:new{
 		Friendly = Point(2,2),
 		Length = 5,
 	},
+}
+
+Shield_attack_AB=Shield_attack_A:new{
+	DoDamage=true,
+	Damage=2,
+	ReAct=true,
 }
