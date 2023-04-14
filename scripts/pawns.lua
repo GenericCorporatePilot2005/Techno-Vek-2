@@ -103,7 +103,7 @@ CreatePilot{
 	Sex = SEX_VEK,
 	Skill = "Survive_Death",
 	Rarity = 0,
-	Blacklist = {"Invulnerable", "Popular","Grid"},
+	Blacklist = {"Invulnerable", "Popular"},
 }
 CreatePilot{
 	Id = "Pilot_Nico_Techno_Leaper",
@@ -111,7 +111,7 @@ CreatePilot{
 	Sex = SEX_VEK,
 	Skill = "Survive_Death",
 	Rarity = 0,
-	Blacklist = {"Invulnerable", "Popular","Grid"},
+	Blacklist = {"Invulnerable", "Popular"},
 }
 CreatePilot{
 	Id = "Pilot_Nico_Techno_Psion",
@@ -119,15 +119,16 @@ CreatePilot{
 	Sex = SEX_VEK,
 	Skill = "Survive_Death",
 	Rarity = 0,
-	Blacklist = {"Invulnerable", "Popular","Grid"},
+	Blacklist = {"Invulnerable", "Popular"},
 }
 CreatePilot{
 	Id = "Pilot_Nico_Techno_Shield",
+	Name="Shield Psion",
 	Personality = "Vek",
 	Sex = SEX_VEK,
 	Skill = "Survive_Death",
 	Rarity = 0,
-	Blacklist = {"Invulnerable", "Popular","Grid"},
+	Blacklist = {"Invulnerable", "Popular"},
 }
 
 -- we can make a mech based on another mech much like we did with weapons.
