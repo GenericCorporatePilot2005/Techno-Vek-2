@@ -338,5 +338,3 @@ Nico_Techno_Shield = Pawn:new{
 	ImpactMaterial = IMPACT_INSECT,
 	}
 AddPawn("Nico_Techno_Shield")
-
---pendiente, hacer posible lo de arriba, ya lograste hacer andar el mod, el resto es refinar los detalles, vos podes!
