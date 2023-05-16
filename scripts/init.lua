@@ -4,7 +4,7 @@
 local mod = {
 	id = "Nico_Techno_Veks 2",
 	name = "Secret Squad II",
-	version = "1.2.0",
+	version = "1.2.5",
 	requirements = {},
 	dependencies = { --This requests modApiExt from the mod loader
 		modApiExt = "1.17", --We can get this by using the variable `modapiext`
@@ -15,8 +15,10 @@ local mod = {
 
 function mod:init()
 	-- look in template/mech to see how to code mechs.
-	require(self.scriptPath .."weapons")
+	require(self.scriptPath .."weapons/weapons")
 	require(self.scriptPath .."pawns")
+	require(self.scriptPath .."pilots")
+	require(self.scriptPath .."assets")
 	require(self.scriptPath .."achievements")
 	require(self.scriptPath .."libs/trait")
 	-- add extra mech to selection screen
@@ -45,7 +47,7 @@ function mod:load( options, version)
 			id="Nico_Techno_Veks 2"
 		},
 		"Secret Squad II",
-		"The second known attempt to combine Vek and machines; in their timeline, different veks were used as inspiration.",
+		"The second known attempt to combine Vek and Mech; from a timeline where different Vek were used.",
 		self.resourcePath .."img/mod_icon.png"
 	)
 end
