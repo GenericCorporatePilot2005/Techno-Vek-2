@@ -126,8 +126,9 @@ function Leaper_Talons:GetFinalEffect(p1, p2, p3)--copied from Control Shot sinc
 		move:push_back(p3)
 
 		ret:AddSound("/enemy/leaper_1/move")
-
+		ret:AddBurst(p1,"Emitter_Burst_$tile",DIR_NONE)
 		ret:AddLeap(move,FULL_DELAY)
+		ret:AddBurst(p3,"Emitter_Crack_Start2",DIR_NONE)
 		ret:AddBounce(p3, 1)
 
 		ret:AddSound("/enemy/leaper_1/land")

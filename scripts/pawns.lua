@@ -1,7 +1,7 @@
-local path = GetParentPath(...)
-require(path.."palette")
 local mod = modApi:getCurrentMod()
-local imageOffset = modApi:getPaletteImageOffset(mod.id)
+local path = mod_loader.mods[modApi.currentMod].resourcePath
+local path2 = mod.scriptPath
+require(path2 .."palette")
 
 -- we can make a mech based on another mech much like we did with weapons.
 Nico_Techno_Leaper = Pawn:new{
@@ -61,8 +61,9 @@ function Nico_LeaperMove:GetSkillEffect(p1, p2)
 	move:push_back(p2)
 
 	ret:AddSound("/enemy/leaper_1/move")
-
+	ret:AddBurst(p1,"Emitter_Burst_$tile",DIR_NONE)
 	ret:AddLeap(move,FULL_DELAY)
+	ret:AddBurst(p2,"Emitter_Crack_Start2",DIR_NONE)
 	ret:AddBounce(p2, 1)
 
 	ret:AddSound("/enemy/leaper_1/land")
@@ -86,7 +87,7 @@ Nico_Techno_Centipede = Pawn:new{
 
 	-- ImageOffset specifies which color scheme we will be using.
 	-- (only apporpirate if you draw your mechs with Archive olive green colors)
-	ImageOffset = 8,
+	ImageOffset = modApi:getPaletteImageOffset("Nico_Centipede"),
 
 	-- Any weapons this mech should start with goes in this table.
 	SkillList = {"Acidic_Vomit"},
@@ -195,7 +196,7 @@ Nico_Techno_Shield = Pawn:new{
 	-- ImageOffset specifies which color scheme we will be using.
 	-- (only apporpirate if you draw your mechs with Archive olive green colors)
 
-	ImageOffset = imageOffset,
+	ImageOffset = modApi:getPaletteImageOffset("Nico_ShieldPsion"),
 
 	-- Any weapons this mech should start with goes in this table.
 	SkillList = {"Shield_attack" ,"Passive_Psions" },
