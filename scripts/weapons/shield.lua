@@ -1,8 +1,6 @@
 local path = mod_loader.mods[modApi.currentMod].resourcePath
 
 -- add assets from our mod so the game can find them.
-modApi:appendAsset("img/combat/icons/icon_Nico_shield_glow.png", path.."img/combat/icons/icon_Nico_shield_glow.png")
-Location["combat/icons/icon_Nico_shield_glow.png"] = Point(-12,12)
 modApi:appendAsset("img/combat/icons/icon_Nico_power_glow.png", path.."img/combat/icons/icon_Nico_power_glow.png")
 Location["combat/icons/icon_Nico_power_glow.png"] = Point(-12,12)
 
@@ -19,6 +17,7 @@ Shield_attack=Tentacle_attack:new{
 	PowerCost=0,
 	ExplosionCenter="Radio_Burst",
 	Upgrades=2,
+	BounceAmount = 1,
 	UpgradeCost={3,2},
 	UpgradeList={"OverCharge","+2 Damage"},
 	UpShot="",
@@ -43,16 +42,16 @@ ANIMS.shield_explo = Animation:new{
 }
 function Shield_attack:GetSkillEffect(p1,p2)
 	local ret = SkillEffect()
-	local radio=SpaceDamage(p1,0)--this is the animation that plays on the head of the shooter
-	radio.iShield=1
-	radio.sAnimation="Radio_Burst"
+	local radiop1=SpaceDamage(p1,0)--this is the animation that plays on the head of the shooter
+	radiop1.iShield=1
+	radiop1.sAnimation="Radio_Burst"
 	ret:AddBounce(p1, 1)
-	ret:AddDamage(radio)
-	local damage = SpaceDamage(p2,0)
-	damage.sAnimation = self.ExplosionCenter
-	damage.bHide=true
+	ret:AddDamage(radiop1)
+	local radiop2 = SpaceDamage(p2,0)
+	radiop2.sAnimation = self.ExplosionCenter
+	radiop2.bHide=true
 	ret:AddDelay(0.25)
-	ret:AddDamage(damage)
+	ret:AddDamage(radiop2)
 	local damage = SpaceDamage(p2,0)
 	ret:AddDelay(0.25)
 	local tpawn = Board:GetPawn(p2)
@@ -60,11 +59,12 @@ function Shield_attack:GetSkillEffect(p1,p2)
 
 	if Board:GetPawnTeam(p2) == TEAM_PLAYER and self.ReAct and not tpawn:IsActive() then
 		damage.iShield=1
-		powered.sImageMark="icon_Nico_shield_glow.png"
-		ret:AddDamage(powered)
+		damage.bHide=true
+		powered.sImageMark="combat/icons/icon_Nico_power_glow.png"
 		ret:AddScript(string.format("Board:GetPawn(%s):SetActive(true)", p2:GetString()))
         ret:AddScript(string.format("Board:GetPawn(%s):SetMovementSpent(false)", p2:GetString()))
 		ret:AddScript(string.format("Board:Ping(%s,GL_Color(197,255,255))", p2:GetString())) -- cool animation
+		ret:AddDamage(powered)
 		ret:AddDamage(damage)
 	elseif Board:GetPawnTeam(p2) == TEAM_PLAYER or Board:IsBuilding(p2) then
 		damage.iShield=1
@@ -76,7 +76,6 @@ function Shield_attack:GetSkillEffect(p1,p2)
 		ret:AddDamage(damage)
 	else
 		damage.iShield=1
-		damage.sImageMark="icon_Nico_shield_glow.png"
 		ret:AddDamage(damage)
 	end
 	if self.BounceAmount ~= 0 then	ret:AddBounce(p2, self.BounceAmount) end
@@ -97,12 +96,21 @@ function Shield_attack:GetSkillEffect(p1,p2)
 		ret:AddDamage(damage)
 		if self.BounceOuterAmount ~= 0 then	ret:AddBounce(p2 + DIR_VECTORS[dir], self.BounceOuterAmount) end
 	end
-	if self.ShieldAd then
-		for i = DIR_START, DIR_END do
-			damage.iShield=1
-			damage.loc = p1 + DIR_VECTORS[i]
-			ret:AddDamage(damage)
+	-- for the tip
+	if Board:GetSize() == Point(6,6) and self.ReAct then
+		ret:AddDelay(1.0)
+		ret:AddBounce(p2,4)
+		ret:AddDelay(0.4)
+		ret:AddBurst(Point(2,0),"Emitter_Burst_tiles_grass",DIR_NONE)
+		ret:AddBounce(Point(2,0),-4)
+		ret:AddScript("Board:DamageSpace(Point(2,0),1)")
+		ret:AddDelay(0.2)
+		for dir = DIR_START, DIR_END do
+			ret:AddBounce(Point(2,0)+DIR_VECTORS[dir],-2)
+			ret:AddBurst(Point(2,0)+DIR_VECTORS[dir],"Emitter_Burst_tiles_grass",DIR_NONE)
 		end
+		ret:AddDelay(1.0)
+		
 	end
 	return ret
 end
@@ -112,10 +120,8 @@ Shield_attack_A=Shield_attack:new{
 	ReAct=true,
 	TipImage = {
 		Unit = Point(2,4),
-		Second_Origin=Point(2,4),
 		Enemy = Point(2,0),
 		Target = Point(2,2),
-		Second_Target=Point(2,0),
 		Friendly = Point(2,2),
 		Length = 5,
 	},
