@@ -91,9 +91,11 @@ end
 		global_gunk = false
 	end
 	
-	for _, p in ipairs(Board) do
-		if Board:IsTerrain(p,TERRAIN_MOUNTAIN) then
-			count = count + 1
+	if isRealMission() then
+		for _, p in ipairs(Board) do
+			if Board:IsTerrain(p,TERRAIN_MOUNTAIN) then
+				count = count + 1
+			end
 		end
 	end
 	
@@ -103,18 +105,14 @@ end
 	end
 
 	--This function is the same as the above one but without the global variable so that when the post-fire count occurs, it does not update global_mountains_precount
-	local function getMountainPostCount(mission, pawn, weaponId, p1, p2)
+	local function getMountainPostCount()
 	local count = 0
 	
-	if (weaponId == "Acidic_Vomit") or (weaponId == "Acidic_Vomit_A") or (weaponId == "Acidic_Vomit_B") or (weaponId == "Acidic_Vomit_AB") then
-		global_gunk = true
-	else
-		global_gunk = false
-	end
-	
-	for _, p in ipairs(Board) do
-		if Board:IsTerrain(p,TERRAIN_MOUNTAIN) then
-			count = count + 1
+	if isRealMission() then
+		for _, p in ipairs(Board) do
+			if Board:IsTerrain(p,TERRAIN_MOUNTAIN) then
+				count = count + 1
+			end
 		end
 	end
 	
@@ -129,18 +127,21 @@ end
 	if isRealMission() and gunk and precount - postcount > 3 then
 		ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Centipede')")
 		Board:AddEffect(ret)
+		global_gunk = false
 	end
 	end
 
 --Psion's achievement
 
-	local function Nico_MissionEnd(mission)--Diplomatic Immunity
+	local function Nico_MissionStart(mission)--Diplomatic Immunity
+		mission.Nico_PsionDeath = false
+	end
+	local function Nico_MissionEnd(mission)
 		local progress = Nico_Diplo_Immune:getProgress()
-		mission.Nico_PsionDeath = false or mission.Nico_PsionDeath
 		if mission.Nico_PsionDeath then progress.valid = false end
 		if not Nico_Diplo_Immune:isComplete() then
-			if mission.BossMission and progress.valid and progress.islands == 3 and Board:GetSize() ~= Point(6,6) and GAME.additionalSquadData.squad == modid and not IsTestMechScenario() then --Third island boss and valid
-				modApi.achievements:trigger(modid,id)
+			if mission.BossMission and progress.valid and progress.islands == 2 and Board:GetSize() ~= Point(6,6) and GAME.additionalSquadData.squad == modid and not IsTestMechScenario() then --Third island boss and valid
+				modApi.achievements:trigger(modid,"Nico_Techno_Psion")
 			end
 		end
 	end
@@ -171,6 +172,8 @@ end
 	--This line tells us that we want to run the above function every time a skill has just begun executing (including skill previews)
 	modApi:addSaveGameHook(mountainChecker)
 	--This line tells us that we want to run the above function every time the game is saved (so after all weapon effects and death effects and hooks have processed, e.g. Boom Bots, Unstable Boulders)
+	modApi:addMissionStartHook(Nico_MissionStart)
+	--This line tells us that we want to run the above function every time a mission is entered
 	modApi:addMissionEndHook(Nico_MissionEnd)
 	--This line tells us that we want to run the above function every time a mission is over
 	modapiext:addPawnKilledHook(Nico_PsionKilled)
