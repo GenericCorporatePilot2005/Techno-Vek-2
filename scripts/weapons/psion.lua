@@ -67,7 +67,7 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 
 	local anim1=SpaceDamage(p2)
 	anim1.sAnimation="PsionAttack_Front"
-	anim1.sSound=sef.ImpactSound
+	anim1.sSound=self.ImpactSound
 	if Board:IsBuilding(p2) then
 		anim1.iDamage=0
 	elseif self.Heal and Board:GetPawnTeam(p2) == TEAM_PLAYER then

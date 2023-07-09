@@ -30,6 +30,7 @@ modApi.achievements:add{
 	image = "img/achievements/Nico_Techno_Leaper.png",
 	squad = "Nico_Techno_Veks 2",
 	objective=1,
+	Shield1=true,
 }
 
 modApi.achievements:add{
@@ -39,6 +40,7 @@ modApi.achievements:add{
 	image = "img/achievements/Nico_Techno_Centipede.png",
 	squad = "Nico_Techno_Veks 2",
 	objective=1,
+	Shield2=true,
 }
 
 Nico_Diplo_Immune = modApi.achievements:add{
@@ -52,6 +54,7 @@ Nico_Diplo_Immune = modApi.achievements:add{
 		valid = true,
 	},
 	global = global,
+	Shield3=true,
 }
 
 modApi.achievements:add{
@@ -62,11 +65,13 @@ modApi.achievements:add{
 	tip = "New Mech Unlocked on Random and Custom Squads",
 	image = "img/achievements/Nico_Techno_Shield.png",
 	squad = "Nico_Techno_Veks 2",
+	objective={
+		Shield1=true,
+		Shield2=true,
+		Shield3=true,
+	}
 }
 
-if objective==3 then
-	ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Shield')")
-end
 
 --Lemon's Real Mission Checker
 local function isRealMission()
