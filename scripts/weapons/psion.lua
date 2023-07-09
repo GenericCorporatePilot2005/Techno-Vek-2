@@ -74,8 +74,9 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 		anim1.iDamage=-1
 	else
 		anim1.iDamage=self.Damage
-		if Board:IsTerrain(p2, TERRAIN_FOREST) then
-			anim1.iFire = 1
+		if Board:IsTerrain(p2,TERRAIN_FOREST) and Board:IsPawnSpace(p2) and not Board:GetPawn(p2):IsShield() and not Board:GetPawn(p2):IsFrozen() then
+			Tanim1.iFire = 1
+			Tanim1.sScript = "modApi:runLater(function() Board:SetFire("..p2:GetString()..",false) end)"
 		end
 		if Board:IsCrackable(p2) and not Board:IsCracked(p2) then
 			anim1.iCrack=EFFECT_CREATE
@@ -149,8 +150,9 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 		else
 			anim1.iDamage=self.Damage
 		end
-		if Board:IsTerrain(p3, TERRAIN_FOREST) then
-			anim1.iFire = 1
+		if Board:IsTerrain(p3,TERRAIN_FOREST) and Board:IsPawnSpace(p3) and not Board:GetPawn(p3):IsShield() and not Board:GetPawn(p3):IsFrozen() then
+			Tanim1.iFire = 1
+			Tanim1.sScript = "modApi:runLater(function() Board:SetFire("..p3:GetString()..",false) end)"
 		end
 		if Board:IsCrackable(p3) and not Board:IsCracked(p3) then
 			anim1.iCrack=EFFECT_CREATE
