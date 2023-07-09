@@ -20,6 +20,7 @@ Tentacle_attack=Skill:new{
 	UpgradeCost={2,2},
 	UpgradeList={"Melt & Flip","+1 Damage & Heal Ally"},
 	LaunchSound = "/weapons/arachnoid_ko",
+	ImpactSound = "/impact/generic/explosion",
 	TipImage={
 		Unit = Point(2,2),
 		Second_Origin=Point(2,2),
@@ -56,6 +57,7 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 	local dir = GetDirection(p2 - p1)
 	local radio=SpaceDamage(p1,0)
 	radio.sAnimation="Radio_Burst"
+	radio.sSound=self.LaunchSound
 	ret:AddBounce(p1,1)
 	ret:AddDamage(radio)
 	radio=SpaceDamage(p2,0)
@@ -65,6 +67,7 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 
 	local anim1=SpaceDamage(p2)
 	anim1.sAnimation="PsionAttack_Front"
+	anim1.sSound=sef.ImpactSound
 	if Board:IsBuilding(p2) then
 		anim1.iDamage=0
 	elseif self.Heal and Board:GetPawnTeam(p2) == TEAM_PLAYER then
