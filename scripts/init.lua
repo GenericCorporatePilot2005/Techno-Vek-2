@@ -20,20 +20,23 @@ function mod:init()
 	require(self.scriptPath .."pilots")
 	require(self.scriptPath .."assets")
 	require(self.scriptPath .."achievements")
+	if modApi.achievements:isComplete("Nico_Techno_Veks 2","Nico_Techno_Shield") then
+		-- add extra mech to selection screen
+		modApi.events.onModsInitialized:subscribe(function()
+
+			local oldGetStartingSquad = getStartingSquad
+			function getStartingSquad(choice, ...)
+			local result = oldGetStartingSquad(choice, ...)
+
+			if choice == 0 then
+				return add_arrays(result, {"Nico_Techno_Shield"})
+			end
+			return result
+			end
+		end)
+	end
 	require(self.scriptPath .."libs/trait")
-	-- add extra mech to selection screen
-	modApi.events.onModsInitialized:subscribe(function()
 
-		local oldGetStartingSquad = getStartingSquad
-		function getStartingSquad(choice, ...)
-		local result = oldGetStartingSquad(choice, ...)
-
-		if choice == 0 then
-			return add_arrays(result, {"Nico_Techno_Shield"})
-		end
-		return result
-		end
-	end)
 end
 
 function mod:load( options, version)
