@@ -68,23 +68,36 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 	local anim1=SpaceDamage(p2)
 	anim1.sAnimation="PsionAttack_Front"
 	anim1.sSound=self.ImpactSound
+	local anim2=SpaceDamage(p2)
+	anim2.sAnimation="PsionAttack_Back"
+	anim2.bHide=true
 	if Board:IsBuilding(p2) then
-		anim1.iDamage=0
+		anim1.iDamage=DAMAGE_ZERO
 	elseif self.Heal and Board:GetPawnTeam(p2) == TEAM_PLAYER then
 		anim1.iDamage=-1
 	else
 		anim1.iDamage=self.Damage
 		if Board:IsTerrain(p2,TERRAIN_FOREST) and Board:IsPawnSpace(p2) and not Board:GetPawn(p2):IsShield() and not Board:GetPawn(p2):IsFrozen() then
-			Tanim1.iFire = 1
-			Tanim1.sScript = "modApi:runLater(function() Board:SetFire("..p2:GetString()..",false) end)"
+			anim1.iFire = 1
+			anim1.sScript = "modApi:runLater(function() Board:SetFire("..p2:GetString()..",false) end)"
 		end
 		if Board:IsCrackable(p2) and not Board:IsCracked(p2) then
 			anim1.iCrack=EFFECT_CREATE
+		elseif Board:GetTerrain(p2) == TERRAIN_HOLE then
+			anim1.sAnimation="tentacles"
+			anim2.sAnimation=""
+		elseif Board:GetTerrain(p2) == TERRAIN_WATER then
+			local watereffect=SpaceDamage(p2,0)
+			if Board:IsAcid(p2) then
+				watereffect.sAnimation="Splash_acid"
+			elseif Board:IsTerrain(p2,TERRAIN_LAVA) then
+				watereffect.sAnimation="Splash_lava"
+			else
+				watereffect.sAnimation="Splash"
+			end
+			ret:AddDamage(watereffect)
 		end
 	end
-	local anim2=SpaceDamage(p2)
-	anim2.sAnimation="PsionAttack_Back"
-	anim2.bHide=true
 	ret:AddDamage(anim1)
 	ret:AddDamage(anim2)
 	
@@ -140,6 +153,9 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 
 	local anim1=SpaceDamage(p3)
 	anim1.sAnimation="PsionAttack_Front"
+	local anim2=SpaceDamage(p3)
+	anim2.sAnimation="PsionAttack_Back"
+	anim2.bHide=true
 	if Board:IsBuilding(p3) then
 		anim1.iDamage=0
 	elseif self.Heal and Board:GetPawnTeam(p3) == TEAM_PLAYER then
@@ -147,20 +163,28 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 	else
 		if Board:GetPawnTeam(p3)==TEAM_ENEMY then
 			anim1=SpaceDamage(p3,self.Damage,DIR_FLIP)
+		elseif Board:GetTerrain(p3) == TERRAIN_HOLE then
+			anim1.sAnimation="tentacles"
+			anim2.sAnimation=""
 		else
 			anim1.iDamage=self.Damage
 		end
 		if Board:IsTerrain(p3,TERRAIN_FOREST) and Board:IsPawnSpace(p3) and not Board:GetPawn(p3):IsShield() and not Board:GetPawn(p3):IsFrozen() then
-			Tanim1.iFire = 1
-			Tanim1.sScript = "modApi:runLater(function() Board:SetFire("..p3:GetString()..",false) end)"
+			anim1.iFire = 1
+			anim1.sScript = "modApi:runLater(function() Board:SetFire("..p3:GetString()..",false) end)"
 		end
-		if Board:IsCrackable(p3) and not Board:IsCracked(p3) then
-			anim1.iCrack=EFFECT_CREATE
+		if Board:GetTerrain(p3) == TERRAIN_WATER then
+			local watereffect=SpaceDamage(p3,0)
+			if Board:IsAcid(p3) then
+				watereffect.sAnimation="Splash_acid"
+			elseif Board:IsTerrain(p3,TERRAIN_LAVA) then
+				watereffect.sAnimation="Splash_lava"
+			else
+				watereffect.sAnimation="Splash"
+			end
+			ret:AddDamage(watereffect)
 		end
 	end
-	local anim2=SpaceDamage(p3)
-	anim2.sAnimation="PsionAttack_Back"
-	anim2.bHide=true
 	ret:AddDamage(anim1)
 	ret:AddDamage(anim2)
 
