@@ -62,7 +62,7 @@ modApi.achievements:add{
 	global = "Secret Rewards",
 	secret=true,
 	name = "The Call of The Psion",
-	tip = "New Mech Unlocked on Random and Custom Squads",
+	tip = "New Mech Unlocked on Random and Custom Squads.\nRequires a restart to take effect.",
 	image = "img/achievements/Nico_Techno_Shield.png",
 	squad = "Nico_Techno_Veks 2",
 	objective={
