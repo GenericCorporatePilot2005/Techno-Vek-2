@@ -12,7 +12,7 @@ ANIMS.Radio_Burst = Animation:new{
 Tentacle_attack=Skill:new{
 	Name="Psionic Transmitter",
 	Class="TechnoVek",
-	Description="Remotely damage and crack a tile, pushing adjacent tiles. Doesn't damage buildings.",
+	Description="Remotely damage and crack a tile, pushing adjacent tiles. Doesn't damage buildings. If the target is an ally, crack adjacent tiles instead.",
 	Icon="weapons/Psion_weapon.png",
 	Damage=1,
 	PowerCost=0,
@@ -105,6 +105,10 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 		local curr = p2 + DIR_VECTORS[i]
 		local spaceDamage = SpaceDamage(curr, 0, i)
 		
+		if Board:GetPawnTeam(p2) == TEAM_PLAYER then
+			spaceDamage.iCrack = 1
+		end
+		
 		spaceDamage.sAnimation = "airpush_"..i
 		ret:AddDamage(spaceDamage)
 		
@@ -168,10 +172,6 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 			anim2.sAnimation=""
 		else
 			anim1.iDamage=self.Damage
-		end
-		if Board:IsTerrain(p3,TERRAIN_FOREST) and Board:IsPawnSpace(p3) and not Board:GetPawn(p3):IsShield() and not Board:GetPawn(p3):IsFrozen() then
-			anim1.iFire = 1
-			anim1.sScript = "modApi:runLater(function() Board:SetFire("..p3:GetString()..",false) end)"
 		end
 		if Board:GetTerrain(p3) == TERRAIN_WATER then
 			local watereffect=SpaceDamage(p3,0)
