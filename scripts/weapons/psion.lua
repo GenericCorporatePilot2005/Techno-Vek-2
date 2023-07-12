@@ -12,7 +12,7 @@ ANIMS.Radio_Burst = Animation:new{
 Tentacle_attack=Skill:new{
 	Name="Psionic Transmitter",
 	Class="TechnoVek",
-	Description="Remotely damage and crack a tile, pushing adjacent tiles. Doesn't damage buildings. If the target is an ally, crack adjacent tiles instead.",
+	Description="Remotely damage and crack a tile, pushing adjacent tiles. Doesn't damage buildings. If the target is an ally or building, crack adjacent tiles instead.",
 	Icon="weapons/Psion_weapon.png",
 	Damage=1,
 	PowerCost=0,
@@ -105,7 +105,7 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 		local curr = p2 + DIR_VECTORS[i]
 		local spaceDamage = SpaceDamage(curr, 0, i)
 		
-		if Board:GetPawnTeam(p2) == TEAM_PLAYER then
+		if Board:GetPawnTeam(p2) == TEAM_PLAYER or Board:IsBuilding(p2) then
 			spaceDamage.iCrack = 1
 		end
 		
