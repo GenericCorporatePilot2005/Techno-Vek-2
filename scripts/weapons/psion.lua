@@ -187,6 +187,23 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 	end
 	ret:AddDamage(anim1)
 	ret:AddDamage(anim2)
+	
+	--This section of code is custom flip for Firefly Leader and Junebug Leader
+	--Note that it has not been conditioned to check that the Leaders still exist
+	local Mirror = false
+	if Board:IsPawnSpace(p3) and (Board:GetPawn(p3):GetType() == "FireflyBoss" or Board:GetPawn(p3):GetType() == "DNT_JunebugBoss") and Board:GetPawn(p3):IsQueued()then
+		Mirror = true
+	end
+	
+	if Mirror then
+		local threat = Board:GetPawn(p3):GetQueuedTarget()
+		local flip = (GetDirection(threat - p3)+1)%4
+		local newthreat = p3 + DIR_VECTORS[flip]
+		if not Board:IsValid(newthreat) then
+			newthreat = p3 - DIR_VECTORS[flip]
+		end
+		ret:AddScript("Board:GetPawn("..p3:GetString().."):SetQueuedTarget("..newthreat:GetString()..")")
+	end
 
 	ret:AddDelay(0.35)
 	local lava=SpaceDamage(p1)
