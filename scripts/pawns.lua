@@ -11,6 +11,7 @@ Nico_Techno_Leaper = Pawn:new{
 
 	Health = 1,
 	MoveSpeed = 4,
+	IgnoreFire = true,
 	Massive = true,
 	Corpse = true,
 	Jumper=true,
