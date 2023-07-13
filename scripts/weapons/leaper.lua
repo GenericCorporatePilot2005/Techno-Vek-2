@@ -72,9 +72,10 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 		ret:AddScript("Board:GetPawn("..p2:GetString().."):SetQueuedTarget("..newthreat:GetString()..")")
 	end
 
-	if (self.Damage==4 or Board:GetPawn(p1):IsBoosted()) and Board:IsPawnSpace(p2) then
+	if (self.Damage==4 or Board:GetPawn(p1):IsBoosted()) and Board:IsPawnSpace(p2) and GAME.additionalSquadData.squad == "Nico_Techno_Veks 2" and not modApi.achievements:isComplete("Nico_Techno_Veks 2","Nico_Techno_Leaper") then
 		if Board:GetPawnTeam(p2) == TEAM_ENEMY and Board:GetPawn(p2):IsAcid() then
 			ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Leaper')")
+			if modApi.achievements:isComplete("Nico_Techno_Veks 2", "Nico_Techno_Centipede") and modApi.achievements:isComplete("Nico_Techno_Veks 2", "Nico_Techno_Psion") then ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Shield')") end
 		end
 	end
 	return ret
