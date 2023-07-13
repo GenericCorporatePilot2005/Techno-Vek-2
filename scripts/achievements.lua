@@ -30,7 +30,6 @@ modApi.achievements:add{
 	image = "img/achievements/Nico_Techno_Leaper.png",
 	squad = "Nico_Techno_Veks 2",
 	objective=1,
-	Shield1=true,
 }
 
 modApi.achievements:add{
@@ -40,21 +39,15 @@ modApi.achievements:add{
 	image = "img/achievements/Nico_Techno_Centipede.png",
 	squad = "Nico_Techno_Veks 2",
 	objective=1,
-	Shield2=true,
 }
 
-Nico_Diplo_Immune = modApi.achievements:add{
+modApi.achievements:add{
 	id = "Nico_Techno_Psion",
 	name = "Diplomatic Immunity",
 	tip = "Don't kill any Psions over the course of 3 Corporate Islands (Psion Abomination excluded)",
 	image = "img/achievements/Nico_Techno_Psion.png",
 	squad = "Nico_Techno_Veks 2",
-	objective = {
-		islands = 3,
-		valid = true,
-	},
-	global = global,
-	Shield3=true,
+	objective = 3,
 }
 
 modApi.achievements:add{
@@ -65,13 +58,7 @@ modApi.achievements:add{
 	tip = "New Mech Unlocked on Random and Custom Squads.\nRequires a restart to take effect.",
 	image = "img/achievements/Nico_Techno_Shield.png",
 	squad = "Nico_Techno_Veks 2",
-	objective={
-		Shield1=true,
-		Shield2=true,
-		Shield3=true,
-	}
 }
-
 
 --Lemon's Real Mission Checker
 local function isRealMission()
@@ -129,8 +116,9 @@ end
 	local precount = global_mountains_precount
 	local postcount = getMountainPostCount()
 	local ret = SkillEffect()
-	if isRealMission() and gunk and precount - postcount > 3 then
+	if isRealMission() and gunk and precount - postcount > 3 and GAME.additionalSquadData.squad == modid and not modApi.achievements:isComplete(modid,"Nico_Techno_Centipede") then
 		ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Centipede')")
+		if modApi.achievements:isComplete(modid, "Nico_Techno_Leaper") and modApi.achievements:isComplete(modid, "Nico_Techno_Psion") then ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Shield')") end
 		Board:AddEffect(ret)
 		global_gunk = false
 	end
@@ -138,34 +126,35 @@ end
 
 --Psion's achievement
 
-	local function Nico_MissionStart(mission)--Diplomatic Immunity
-		mission.Nico_PsionDeath = false
+	local function Nico_MissionStart(mission)
+		mission.Nico_PsionDeath = false--create mission flag
 	end
 	local function Nico_MissionEnd(mission)
-		local progress = Nico_Diplo_Immune:getProgress()
-		if mission.Nico_PsionDeath then progress.valid = false end
-		if not Nico_Diplo_Immune:isComplete() then
-			if mission.BossMission and progress.valid and progress.islands == 2 and Board:GetSize() ~= Point(6,6) and GAME.additionalSquadData.squad == modid and not IsTestMechScenario() then --Third island boss and valid
-				modApi.achievements:trigger(modid,"Nico_Techno_Psion")
+		local progress = modApi.achievements:getProgress("Nico_Techno_Veks 2","Nico_Techno_Psion")
+		if not modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then
+			if mission.Nico_PsionDeath then
+				modApi.achievements:addProgress(modid,"Nico_Techno_Psion",-progress-1)--invalidate if psion was killed
 			end
 		end
 	end
 	local function Nico_PsionKilled(mission, pawn)
 		if (_G[pawn:GetType()].Image == "DNT_jelly" or pawn:GetLeader() ~= 0) and pawn:GetType() ~= "Jelly_Boss" then
-			mission.Nico_PsionDeath = true
+			mission.Nico_PsionDeath = true--track death of psion
 		end
 	end
 	local function Nico_onIslandLeft(island)
-		--Diplomatic Immunity Islands
-		local progress = Nico_Diplo_Immune:getProgress()
-		if progress.valid then
-			Nico_Diplo_Immune:addProgress({islands=1})
+		if modApi.achievements:getProgress(modid,"Nico_Techno_Psion")>-1 then
+			modApi.achievements:addProgress(modid,"Nico_Techno_Psion",1)--increment if still valid
 		end
+		if modApi.achievements:isComplete(modid, "Nico_Techno_Leaper") and modApi.achievements:isComplete(modid, "Nico_Techno_Centipede") and modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then modApi.achievements:trigger(modid,"Nico_Techno_Shield") end
 	end
 	local function Nico_GameStart()
-		local progress = Nico_Diplo_Immune:getProgress()
-		if not Nico_Diplo_Immune:isComplete() then
-			Nico_Diplo_Immune:setProgress({islands=0, valid = (GAME.additionalSquadData.squad == modid)})
+		if not modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then
+			if GAME.additionalSquadData.squad ~= modid then
+				modApi.achievements:addProgress(modid,"Nico_Techno_Psion",-1)--invalidate if not the right squad
+			else
+				modApi.achievements:reset(modid, "Nico_Techno_Psion")--manually reset the achievement
+			end
 		end
 	end
 
