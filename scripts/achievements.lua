@@ -73,8 +73,8 @@ end
 
 --Centipede's achievement
 
-	--This function has a global variable created in it for the pre-fire mountain count
-	local function getMountainPreCount(mission, pawn, weaponId, p1, p2)
+--This function has a global variable created in it for the pre-fire mountain count
+local function getMountainPreCount(mission, pawn, weaponId, p1, p2)
 	local count = 0
 	
 	if (weaponId == "Acidic_Vomit") or (weaponId == "Acidic_Vomit_A") or (weaponId == "Acidic_Vomit_B") or (weaponId == "Acidic_Vomit_AB") then
@@ -94,10 +94,10 @@ end
 	global_mountains_precount = count
 	
 	return count
-	end
+end
 
-	--This function is the same as the above one but without the global variable so that when the post-fire count occurs, it does not update global_mountains_precount
-	local function getMountainPostCount()
+--This function is the same as the above one but without the global variable so that when the post-fire count occurs, it does not update global_mountains_precount
+local function getMountainPostCount()
 	local count = 0
 	
 	if isRealMission() then
@@ -109,9 +109,9 @@ end
 	end
 	
 	return count
-	end
+end
 
-	local function mountainChecker(mission)
+local function mountainChecker(mission)
 	local gunk = global_gunk
 	local precount = global_mountains_precount
 	local postcount = getMountainPostCount()
@@ -122,43 +122,43 @@ end
 		Board:AddEffect(ret)
 		global_gunk = false
 	end
-	end
+end
 
 --Psion's achievement
 
-	local function Nico_MissionStart(mission)
-		mission.Nico_PsionDeath = false--create mission flag
-	end
-	local function Nico_MissionEnd(mission)
-		local progress = modApi.achievements:getProgress("Nico_Techno_Veks 2","Nico_Techno_Psion")
-		if not modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then
-			if mission.Nico_PsionDeath then
-				modApi.achievements:addProgress(modid,"Nico_Techno_Psion",-progress-1)--invalidate if psion was killed
-			end
+local function Nico_MissionStart(mission)
+	mission.Nico_PsionDeath = false--create mission flag
+end
+local function Nico_MissionEnd(mission)
+	local progress = modApi.achievements:getProgress("Nico_Techno_Veks 2","Nico_Techno_Psion")
+	if not modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then
+		if mission.Nico_PsionDeath then
+			modApi.achievements:addProgress(modid,"Nico_Techno_Psion",-progress-1)--invalidate if psion was killed
 		end
 	end
-	local function Nico_PsionKilled(mission, pawn)
-		if (_G[pawn:GetType()].Image == "DNT_jelly" or pawn:GetLeader() ~= 0) and pawn:GetType() ~= "Jelly_Boss" then
-			mission.Nico_PsionDeath = true--track death of psion
+end
+local function Nico_PsionKilled(mission, pawn)
+	if (_G[pawn:GetType()].Image == "DNT_jelly" or pawn:GetLeader() ~= 0) and pawn:GetType() ~= "Jelly_Boss" then
+		mission.Nico_PsionDeath = true--track death of psion
+	end
+end
+local function Nico_onIslandLeft(island)
+	if modApi.achievements:getProgress(modid,"Nico_Techno_Psion")>-1 then
+		modApi.achievements:addProgress(modid,"Nico_Techno_Psion",1)--increment if still valid
+	end
+	if modApi.achievements:isComplete(modid, "Nico_Techno_Leaper") and modApi.achievements:isComplete(modid, "Nico_Techno_Centipede") and modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then modApi.achievements:trigger(modid,"Nico_Techno_Shield") end
+end
+local function Nico_GameStart()
+	if not modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then
+		if GAME.additionalSquadData.squad ~= modid then
+			modApi.achievements:addProgress(modid,"Nico_Techno_Psion",-1)--invalidate if not the right squad
+		else
+			modApi.achievements:reset(modid, "Nico_Techno_Psion")--manually reset the achievement
 		end
 	end
-	local function Nico_onIslandLeft(island)
-		if modApi.achievements:getProgress(modid,"Nico_Techno_Psion")>-1 then
-			modApi.achievements:addProgress(modid,"Nico_Techno_Psion",1)--increment if still valid
-		end
-		if modApi.achievements:isComplete(modid, "Nico_Techno_Leaper") and modApi.achievements:isComplete(modid, "Nico_Techno_Centipede") and modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then modApi.achievements:trigger(modid,"Nico_Techno_Shield") end
-	end
-	local function Nico_GameStart()
-		if not modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then
-			if GAME.additionalSquadData.squad ~= modid then
-				modApi.achievements:addProgress(modid,"Nico_Techno_Psion",-1)--invalidate if not the right squad
-			else
-				modApi.achievements:reset(modid, "Nico_Techno_Psion")--manually reset the achievement
-			end
-		end
-	end
+end
 
-	local function EVENT_onModsLoaded() --This function will run when the mod is loaded
+local function EVENT_onModsLoaded() --This function will run when the mod is loaded
 	--modapiext is requested in the init.lua
 	global_gunk = false
 	global_mountains_precount = 0
@@ -171,11 +171,10 @@ end
 	modApi:addMissionEndHook(Nico_MissionEnd)
 	--This line tells us that we want to run the above function every time a mission is over
 	modapiext:addPawnKilledHook(Nico_PsionKilled)
-	end
+end
 
-	modApi.events.onModsLoaded:subscribe(EVENT_onModsLoaded)
-
-	modApi.events.onIslandLeft:subscribe(Nico_onIslandLeft)
-	modApi.events.onPostStartGame:subscribe(Nico_GameStart)
+modApi.events.onModsLoaded:subscribe(EVENT_onModsLoaded)
+modApi.events.onIslandLeft:subscribe(Nico_onIslandLeft)
+modApi.events.onPostStartGame:subscribe(Nico_GameStart)
 
 return this
