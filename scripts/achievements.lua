@@ -150,10 +150,9 @@ local function Nico_onIslandLeft(island)
 end
 local function Nico_GameStart()
 	if not modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then
+		modApi.achievements:reset(modid, "Nico_Techno_Psion")--manually reset the achievement
 		if GAME.additionalSquadData.squad ~= modid then
 			modApi.achievements:addProgress(modid,"Nico_Techno_Psion",-1)--invalidate if not the right squad
-		else
-			modApi.achievements:reset(modid, "Nico_Techno_Psion")--manually reset the achievement
 		end
 	end
 end
