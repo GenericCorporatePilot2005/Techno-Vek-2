@@ -44,9 +44,11 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 			if Board:GetPawn(p1):IsBoosted() then dam_dealt = dam_dealt + 1 end
 			if dpawn:IsArmor() and not dpawn:IsAcid() then dam_dealt = dam_dealt - 1 end
 			if dpawn:IsAcid() then dam_dealt = dam_dealt*2 end
-			if (Board:IsCracked(p2) and not dpawn:IsFlying()) or (Board:GetHealth(p2) == 1 and Board:IsTerrain(p2,TERRAIN_ICE) and not dpawn:IsFlying() and not dpawn:IsMassive()) then
+			if (Board:IsCracked(p2) and not dpawn:IsFlying()) then
 				health = 1
 				if dpawn:IsArmor() and not dpawn:IsAcid() then dam_dealt = dam_dealt + 1 end
+			elseif Board:IsTerrain(p2,TERRAIN_ICE) and not dpawn:IsFlying() and not dpawn:IsMassive() then
+				health = 0
 			end
 			Global_Nico_Move_Speed = Global_Nico_Move_Speed + dam_dealt - health
 		end
