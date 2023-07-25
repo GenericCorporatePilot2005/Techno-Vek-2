@@ -26,20 +26,8 @@ Acidic_Vomit=CentipedeAtk1:new{
 		CustomPawn = "Nico_Techno_Centipede",
 	}
 }
-local path = mod_loader.mods[modApi.currentMod].resourcePath
-modApi:appendAsset("img/combat/icons/icon_Nico_acid_water.png", path.."img/combat/icons/icon_Nico_acid_water.png")
-Location["combat/icons/icon_Nico_acid_water.png"] = Point(-12,12)
-modApi:addWeaponDrop("Acidic_Vomit")
 
-local files = {
-	"icon_swap_acid_glow.png",
-	"icon_swap_acid_off_glowA.png",
-	"icon_swap_acid_off_glowB.png",
-}
-for _, file in ipairs(files) do
-	modApi:appendAsset("img/combat/icons/".. file, path.. "img/combat/icons/" .. file)
-	Location["combat/icons/"..file] = Point(-22,9)
-end
+modApi:addWeaponDrop("Acidic_Vomit")
 function Acidic_Vomit:GetTargetArea(p1)
 	local ret = PointList()
 	for dir = DIR_START, DIR_END do
@@ -61,8 +49,10 @@ function Acidic_Vomit:DamageCalc(p1,p2,p3)
 	dam.sAnimation = "Splash_acid"
 	if Board:IsPawnSpace(dam.loc) then
 		dam.sImageMark = "combat/icons/icon_swap_acid_glow.png"
-	elseif not Board:IsPawnSpace(dam.loc) then
+	elseif Board:IsBuilding(dam.loc) and not self.BuildingDamage then
 		dam.sImageMark = "combat/icons/icon_swap_acid_off_glowB.png"
+	elseif not Board:IsPawnSpace(dam.loc) then
+		dam.sImageMark = "combat/icons/icon_swap_acid_off_glow.png"
 	end
 	target = GetProjectileEnd(p1,p2)
 	if (p3 == target + DIR_VECTORS[(dir - 1)% 4]) or (p3 == target) or (p3 == target + DIR_VECTORS[(dir + 1)% 4]) then
@@ -131,13 +121,20 @@ function Acidic_Vomit:GetSkillEffect(p1,p2)
 			damage.iAcid = 1
 			if Board:IsPawnSpace(damage.loc) then
 				damage.sImageMark = "combat/icons/icon_swap_acid_glow.png"
-			elseif not Board:IsPawnSpace(damage.loc) then
-				damage.sImageMark = "combat/icons/icon_swap_acid_off_glowB.png"
+			else
+				damage.sImageMark = "combat/icons/icon_swap_acid_off_glow.png"
 			end
 			damage.sAnimation = "Splash_acid"
 			if Board:IsBuilding(curr) then
 				damage.iDamage = 0
 				for direc = DIR_START, DIR_END do
+					if Board:IsBuilding(damage.loc) then
+						damage.sImageMark = "combat/icons/icon_swap_acid_off_glowB.png"
+					elseif Board:IsPawnSpace(damage.loc) then
+						damage.sImageMark = "combat/icons/icon_swap_acid_glow.png"
+					else
+						damage.sImageMark = "combat/icons/icon_swap_acid_off_glow.png"
+					end
 					local n = curr + DIR_VECTORS[direc]
 					if not list_contains(explored, n) then
 						explored[#explored+1] = n

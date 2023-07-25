@@ -24,17 +24,6 @@ Leaper_Talons = LeaperAtk1:new{
 }
 modApi:addWeaponDrop("Leaper_Talons")
 
-local path = mod_loader.mods[modApi.currentMod].resourcePath
-local files = {
-	"Nico_icon_swap_fire_glowA.png",
-	"Nico_icon_swap_fire_glowB.png",
-	"Nico_icon_swap_fire_off_glowA.png",
-	"Nico_icon_swap_fire_off_glowB.png",
-}
-for _, file in ipairs(files) do
-	modApi:appendAsset("img/combat/icons/".. file, path.. "img/combat/icons/" .. file)
-	Location["combat/icons/"..file] = Point(-22,9)
-end
 function Leaper_Talons:GetSkillEffect(p1, p2)
 	local ret = SkillEffect()
 	local direction = GetDirection(p2 - p1)

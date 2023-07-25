@@ -1,7 +1,4 @@
-local path = mod_loader.mods[modApi.currentMod].resourcePath
-modApi:appendAsset("img/combat/icons/icon_Nico_lava.png", path.."img/combat/icons/icon_Nico_lava.png")
-Location["combat/icons/icon_Nico_lava.png"] = Point(-12,12)
-modApi:appendAsset("img/weapons/Psion_weapon.png", path .."img/weapons/Psion_weapon.png")
+
 ANIMS.Radio_Burst = Animation:new{
 	Image = "combat/icons/radio_animate.png",
 	PosX = -16, PosY = -8,
@@ -84,6 +81,8 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 		if Board:IsCrackable(p2) and not Board:IsCracked(p2) and not (Board:IsPawnSpace(p2) and Board:GetPawnTeam(p2) == TEAM_PLAYER) then
 			anim1.iCrack=EFFECT_CREATE
 		elseif Board:GetTerrain(p2) == TERRAIN_HOLE then
+			anim1=SpaceDamage(p2,self.Damage)
+			anim1.iTerrain = TERRAIN_LAVA
 			anim1.sAnimation="tentacles"
 			anim2.sAnimation=""
 		elseif Board:GetTerrain(p2) == TERRAIN_WATER then
@@ -167,7 +166,10 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 	else
 		if Board:GetPawnTeam(p3)==TEAM_ENEMY then
 			anim1=SpaceDamage(p3,self.Damage,DIR_FLIP)
+			anim1.sAnimation="PsionAttack_Front"
 		elseif Board:GetTerrain(p3) == TERRAIN_HOLE then
+			anim1=SpaceDamage(p3,self.Damage)
+			anim1.iTerrain = TERRAIN_LAVA
 			anim1.sAnimation="tentacles"
 			anim2.sAnimation=""
 		else

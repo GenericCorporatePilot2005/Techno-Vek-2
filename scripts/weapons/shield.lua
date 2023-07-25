@@ -1,10 +1,3 @@
-local path = mod_loader.mods[modApi.currentMod].resourcePath
-
--- add assets from our mod so the game can find them.
-modApi:appendAsset("img/combat/icons/icon_Nico_power_glow.png", path.."img/combat/icons/icon_Nico_power_glow.png")
-Location["combat/icons/icon_Nico_power_glow.png"] = Point(-12,12)
-
-modApi:appendAsset("img/weapons/Shield_weapon.png", path .."img/weapons/Shield_weapon.png")
 
 Shield_attack=Tentacle_attack:new{
 	Name="Psionic Projector",
@@ -30,7 +23,6 @@ Shield_attack=Tentacle_attack:new{
 		CustomPawn = "Nico_Techno_Shield",
 	}
 }
-modApi:appendAsset("img/effects/shield_explo.png", path.. "img/effects/shield_explo.png")
 ANIMS.shield_explo = Animation:new{
 	Image = "effects/shield_explo.png",
 	NumFrames = 8,
@@ -93,25 +85,26 @@ function Shield_attack:GetSkillEffect(p1,p2)
 	end
 	-- for the tip
 	if Board:GetSize() == Point(6,6) and self.ReAct then
-		ret:AddDelay(1.0)
-		ret:AddBounce(p2,4)
-		ret:AddDelay(0.4)
-		ret:AddBurst(Point(2,0),"Emitter_Burst_tiles_grass",DIR_NONE)
-		ret:AddBounce(Point(2,0),-4)
-		ret:AddScript("Board:DamageSpace(Point(2,0),1)")
-		ret:AddDelay(0.2)
-		for dir = DIR_START, DIR_END do
-			ret:AddBounce(Point(2,0)+DIR_VECTORS[dir],-2)
-			ret:AddBurst(Point(2,0)+DIR_VECTORS[dir],"Emitter_Burst_tiles_grass",DIR_NONE)
-		end
-		ret:AddDelay(1.0)
-		
+		if Board:GetPawnTeam(p2) == TEAM_PLAYER then
+			ret:AddDelay(1.0)
+			ret:AddBounce(p2,4)
+			ret:AddDelay(0.4)
+			ret:AddBurst(Point(2,0),"Emitter_Burst_tiles_grass",DIR_NONE)
+			ret:AddBounce(Point(2,0),-4)
+			ret:AddScript("Board:DamageSpace(Point(2,0),1)")
+			ret:AddDelay(0.2)
+			for dir = DIR_START, DIR_END do
+				ret:AddBounce(Point(2,0)+DIR_VECTORS[dir],-2)
+				ret:AddBurst(Point(2,0)+DIR_VECTORS[dir],"Emitter_Burst_tiles_grass",DIR_NONE)
+			end
+			ret:AddDelay(1.0)
+		end	
 	end
 	return ret
 end
 
 Shield_attack_A=Shield_attack:new{
-	UpgradeDescription="Reactivates allied units if they have already acted.",
+	UpgradeDescription="Reactivates ally units if they have already acted.",
 	ReAct=true,
 	TipImage = {
 		Unit = Point(2,4),
