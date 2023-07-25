@@ -24,6 +24,17 @@ Leaper_Talons = LeaperAtk1:new{
 }
 modApi:addWeaponDrop("Leaper_Talons")
 
+local path = mod_loader.mods[modApi.currentMod].resourcePath
+local files = {
+	"Nico_icon_swap_fire_glowA.png",
+	"Nico_icon_swap_fire_glowB.png",
+	"Nico_icon_swap_fire_off_glowA.png",
+	"Nico_icon_swap_fire_off_glowB.png",
+}
+for _, file in ipairs(files) do
+	modApi:appendAsset("img/combat/icons/".. file, path.. "img/combat/icons/" .. file)
+	Location["combat/icons/"..file] = Point(-22,9)
+end
 function Leaper_Talons:GetSkillEffect(p1, p2)
 	local ret = SkillEffect()
 	local direction = GetDirection(p2 - p1)
@@ -34,7 +45,16 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 	damage.bKO_Effect = false
 	Global_Nico_Move_Speed = (self.Damage == 4 and 2) or 1
 	if self.Fire then
-		damage.sImageMark ="combat/icons/icon_fire_glow.png"
+		local dpawn = Board:GetPawn(p2)
+		if not Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) or Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) and dpawn:IsFlying() then
+			damage.sImageMark = "combat/icons/Nico_icon_swap_fire_glowA.png"
+		elseif not Board:IsTerrain(damage.loc,TERRAIN_WATER) and not Board:IsPawnSpace(damage.loc) then
+			damage.sImageMark = "combat/icons/Nico_icon_swap_fire_off_glowB.png"
+		elseif Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) and not dpawn:IsFlying() then
+			damage.sImageMark = "combat/icons/Nico_icon_swap_fire_glowB.png"
+		elseif Board:IsTerrain(damage.loc,TERRAIN_WATER) and not Board:IsPawnSpace(damage.loc) then
+			damage.sImageMark = "combat/icons/Nico_icon_swap_fire_off_glowA.png"
+		end
 		damage.iFire = 1
 		if Board:IsDeadly(damage,Pawn) then
 			damage.bKO_Effect = true

@@ -31,6 +31,15 @@ modApi:appendAsset("img/combat/icons/icon_Nico_acid_water.png", path.."img/comba
 Location["combat/icons/icon_Nico_acid_water.png"] = Point(-12,12)
 modApi:addWeaponDrop("Acidic_Vomit")
 
+local files = {
+	"icon_swap_acid_glow.png",
+	"icon_swap_acid_off_glowA.png",
+	"icon_swap_acid_off_glowB.png",
+}
+for _, file in ipairs(files) do
+	modApi:appendAsset("img/combat/icons/".. file, path.. "img/combat/icons/" .. file)
+	Location["combat/icons/"..file] = Point(-22,9)
+end
 function Acidic_Vomit:GetTargetArea(p1)
 	local ret = PointList()
 	for dir = DIR_START, DIR_END do
@@ -50,6 +59,11 @@ function Acidic_Vomit:DamageCalc(p1,p2,p3)
 	local dam = SpaceDamage(p3,1)
 	dam.iAcid = 1
 	dam.sAnimation = "Splash_acid"
+	if Board:IsPawnSpace(dam.loc) then
+		dam.sImageMark = "combat/icons/icon_swap_acid_glow.png"
+	elseif not Board:IsPawnSpace(dam.loc) then
+		dam.sImageMark = "combat/icons/icon_swap_acid_off_glowB.png"
+	end
 	target = GetProjectileEnd(p1,p2)
 	if (p3 == target + DIR_VECTORS[(dir - 1)% 4]) or (p3 == target) or (p3 == target + DIR_VECTORS[(dir + 1)% 4]) then
 		if self.Spill and ((Board:IsAcid(p3) and Board:GetTerrain(p3) ~= TERRAIN_ICE and Board:GetTerrain(p3) ~= TERRAIN_WATER and (not Board:IsCracked(p3)) and (not Board:IsBuilding(p3))) or (Board:IsPawnSpace(p3) and (Board:GetPawn(p3):GetType() == "AcidVat" or Board:GetPawn(p3):GetType() == "Storm_Generator"))) then
@@ -115,6 +129,11 @@ function Acidic_Vomit:GetSkillEffect(p1,p2)
 			local curr = pop_back(future)
 			local damage = SpaceDamage(curr,1,DIR_FLIP)
 			damage.iAcid = 1
+			if Board:IsPawnSpace(damage.loc) then
+				damage.sImageMark = "combat/icons/icon_swap_acid_glow.png"
+			elseif not Board:IsPawnSpace(damage.loc) then
+				damage.sImageMark = "combat/icons/icon_swap_acid_off_glowB.png"
+			end
 			damage.sAnimation = "Splash_acid"
 			if Board:IsBuilding(curr) then
 				damage.iDamage = 0

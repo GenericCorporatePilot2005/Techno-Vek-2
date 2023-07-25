@@ -123,7 +123,7 @@ Nico_Techno_Psion = Pawn:new{
 
 	-- ImageOffset specifies which color scheme we will be using.
 	-- (only apporpirate if you draw your mechs with Archive olive green colors)
-	ImageOffset = 8,
+	ImageOffset = modApi:getPaletteImageOffset("Nico_Centipede"),
 
 	-- Any weapons this mech should start with goes in this table.
 	SkillList = {"Tentacle_attack" ,"Passive_Psions" },
