@@ -2,7 +2,7 @@ local mod = modApi:getCurrentMod()
 local path = mod_loader.mods[modApi.currentMod].resourcePath
 local path2 = mod.scriptPath
 require(path2 .."palette")
-
+require(path2 .."achievements")
 -- we can make a mech based on another mech much like we did with weapons.
 Nico_Techno_Leaper = Pawn:new{
 	Name = "Techno-Leaper",
@@ -35,7 +35,6 @@ Nico_Techno_Leaper = Pawn:new{
 	ImpactMaterial = IMPACT_INSECT,
 
 }
-AddPawn("Nico_Techno_Leaper")
 
 local original_MoveGetTargetArea = Move.GetTargetArea
 
@@ -102,7 +101,6 @@ Nico_Techno_Centipede = Pawn:new{
 	-- impact sounds.
 	ImpactMaterial = IMPACT_INSECT,
 
-AddPawn("Nico_Techno_Centipede")
 }
 Nico_Techno_Psion = Pawn:new{
 	Name = "Techno-Psion",
@@ -138,7 +136,6 @@ Nico_Techno_Psion = Pawn:new{
 	ImpactMaterial = IMPACT_INSECT,
 
 }
-AddPawn("Nico_Techno_Psion")
 
 
 --Remove Grapples (Webs) from Leaper Mech:
@@ -177,38 +174,39 @@ trait:add{
 	desc_text = "This unit is unaffected by Webbing.",--description
 }
 
-Nico_Techno_Shield = Pawn:new{
-	Name = "Shield Psion",
+if modApi.achievements:isComplete("Nico_Techno_Veks 2","Nico_Techno_Shield") then
+	Nico_Techno_Shield = Pawn:new{
+		Name = "Shield Psion",
 
-	-- FlameMech is also Prime, so this is redundant, but if you had no base, you would need a class.
-	Class = "TechnoVek",
+		-- FlameMech is also Prime, so this is redundant, but if you had no base, you would need a class.
+		Class = "TechnoVek",
 
-	-- various stats.
-	Health = 2,
-	MoveSpeed = 4,
-	LargeShield = true,
-	Massive = true,
-	Corpse = true,
-	Flying=true,
+		-- various stats.
+		Health = 2,
+		MoveSpeed = 4,
+		LargeShield = true,
+		Massive = true,
+		Corpse = true,
+		Flying=true,
 
-	-- reference the animations we set up earlier.
-	Image = "Nico_Techno_Shield",
+		-- reference the animations we set up earlier.
+		Image = "Nico_Techno_Shield",
 
-	-- ImageOffset specifies which color scheme we will be using.
-	-- (only apporpirate if you draw your mechs with Archive olive green colors)
+		-- ImageOffset specifies which color scheme we will be using.
+		-- (only apporpirate if you draw your mechs with Archive olive green colors)
 
-	ImageOffset = modApi:getPaletteImageOffset("Nico_ShieldPsion"),
+		ImageOffset = modApi:getPaletteImageOffset("Nico_ShieldPsion"),
 
-	-- Any weapons this mech should start with goes in this table.
-	SkillList = {"Shield_attack" ,"Passive_Psions" },
+		-- Any weapons this mech should start with goes in this table.
+		SkillList = {"Shield_attack" ,"Passive_Psions" },
 
-	-- movement sounds.
-	SoundLocation = "/enemy/jelly/",
+		-- movement sounds.
+		SoundLocation = "/enemy/jelly/",
 
-	-- who will be controlling this unit.
-	DefaultTeam = TEAM_PLAYER,
+		-- who will be controlling this unit.
+		DefaultTeam = TEAM_PLAYER,
 
-	-- impact sounds.
-	ImpactMaterial = IMPACT_INSECT,
+		-- impact sounds.
+		ImpactMaterial = IMPACT_INSECT,
 	}
-AddPawn("Nico_Techno_Shield")
+end

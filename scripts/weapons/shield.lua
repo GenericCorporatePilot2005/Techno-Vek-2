@@ -86,17 +86,23 @@ function Shield_attack:GetSkillEffect(p1,p2)
 	-- for the tip
 	if Board:GetSize() == Point(6,6) and self.ReAct then
 		if Board:GetPawnTeam(p2) == TEAM_PLAYER then
-			ret:AddDelay(1.0)
-			ret:AddBounce(p2,4)
-			ret:AddDelay(0.4)
-			ret:AddBurst(Point(2,0),"Emitter_Burst_tiles_grass",DIR_NONE)
-			ret:AddBounce(Point(2,0),-4)
-			ret:AddScript("Board:DamageSpace(Point(2,0),1)")
-			ret:AddDelay(0.2)
-			for dir = DIR_START, DIR_END do
-				ret:AddBounce(Point(2,0)+DIR_VECTORS[dir],-2)
-				ret:AddBurst(Point(2,0)+DIR_VECTORS[dir],"Emitter_Burst_tiles_grass",DIR_NONE)
-			end
+			Board:RemovePawn(self.TipImage.Friendly)
+			Board:RemovePawn(self.TipImage.Enemy)
+		
+			-- Make sure it's a TankMech so we don't have to bother
+			-- with making sure that the enemy is within attack range.
+			Board:AddPawn("TankMech", self.TipImage.Friendly)
+			local tank = Board:GetPawn(self.TipImage.Friendly)
+			Board:AddPawn("Scorpion2", self.TipImage.Enemy)
+			local enemy = Board:GetPawn(self.TipImage.Enemy)
+		
+			ret:AddDelay(1.5)
+		
+			ret:AddScript(string.format(
+				"Board:GetPawn(%s):FireWeapon(%s, 1)",
+				self.TipImage.Friendly:GetString(),
+				self.TipImage.Enemy:GetString()
+			))
 			ret:AddDelay(1.0)
 		end	
 	end
@@ -112,6 +118,7 @@ Shield_attack_A=Shield_attack:new{
 		Target = Point(2,2),
 		Friendly = Point(2,2),
 		Length = 5,
+		CustomPawn = "Nico_Techno_Shield",
 	},
 }
 
@@ -127,13 +134,13 @@ Shield_attack_B=Shield_attack:new{
 		Second_Target=Point(2,0),
 		Friendly = Point(2,2),
 		Length = 5,
+		CustomPawn = "Nico_Techno_Shield",
 	},
 }
 
 Shield_attack_AB=Shield_attack_A:new{
 	DoDamage=true,
 	Damage=2,
-	ReAct=true,
 	TipImage = {
 		Unit = Point(2,4),
 		Second_Origin=Point(2,4),
@@ -142,5 +149,6 @@ Shield_attack_AB=Shield_attack_A:new{
 		Second_Target=Point(2,0),
 		Friendly = Point(2,2),
 		Length = 5,
+		CustomPawn = "Nico_Techno_Shield",
 	},
 }
