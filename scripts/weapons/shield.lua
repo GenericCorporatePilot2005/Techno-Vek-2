@@ -89,9 +89,9 @@ function Shield_attack:GetSkillEffect(p1,p2)
 			Board:RemovePawn(self.TipImage.Friendly)
 			Board:RemovePawn(self.TipImage.Enemy)
 		
-			-- Make sure it's a TankMech so we don't have to bother
+			-- Make sure it's a ChargeMech so we don't have to bother
 			-- with making sure that the enemy is within attack range.
-			Board:AddPawn("TankMech", self.TipImage.Friendly)
+			Board:AddPawn("ChargeMech", self.TipImage.Friendly)
 			local tank = Board:GetPawn(self.TipImage.Friendly)
 			Board:AddPawn("Scorpion2", self.TipImage.Enemy)
 			local enemy = Board:GetPawn(self.TipImage.Enemy)
