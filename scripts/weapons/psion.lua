@@ -9,7 +9,7 @@ ANIMS.Radio_Burst = Animation:new{
 Tentacle_attack=Skill:new{
 	Name="Psionic Transmitter",
 	Class="TechnoVek",
-	Description="Remotely damage and crack a tile, pushing adjacent tiles. Doesn't damage buildings. If the target is an ally or building, crack adjacent tiles instead.",
+	Description="Remotely damage and crack a tile, pushing adjacent tiles.\nDoesn't damage buildings.\nIf the target is an ally or building, crack adjacent tiles instead.\nIf it targets a chasm, replaces it with lava and does KILL damage.",
 	Icon="weapons/Psion_weapon.png",
 	Damage=1,
 	PowerCost=0,
@@ -81,10 +81,11 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 		if Board:IsCrackable(p2) and not Board:IsCracked(p2) and not (Board:IsPawnSpace(p2) and Board:GetPawnTeam(p2) == TEAM_PLAYER) then
 			anim1.iCrack=EFFECT_CREATE
 		elseif Board:GetTerrain(p2) == TERRAIN_HOLE then
-			anim1=SpaceDamage(p2,self.Damage)
+			anim1 = SpaceDamage(p2,DAMAGE_DEATH)
+			anim1.sImageMark="combat/icons/icon_Nico_Kill_lava.png"
 			anim1.iTerrain = TERRAIN_LAVA
 			anim1.sAnimation="tentacles"
-			anim2.sAnimation=""
+			anim2.sAnimation="Splash_lava"
 		elseif Board:GetTerrain(p2) == TERRAIN_WATER then
 			local watereffect=SpaceDamage(p2,0)
 			if Board:IsAcid(p2) then
@@ -168,10 +169,11 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 			anim1=SpaceDamage(p3,self.Damage,DIR_FLIP)
 			anim1.sAnimation="PsionAttack_Front"
 		elseif Board:GetTerrain(p3) == TERRAIN_HOLE then
-			anim1=SpaceDamage(p3,self.Damage)
+			anim1 = SpaceDamage(p3,DAMAGE_DEATH)
+			anim1.sImageMark="combat/icons/icon_Nico_Kill_lava.png"
 			anim1.iTerrain = TERRAIN_LAVA
 			anim1.sAnimation="tentacles"
-			anim2.sAnimation=""
+			anim2.sAnimation="Splash_lava"
 		else
 			anim1.iDamage=self.Damage
 		end

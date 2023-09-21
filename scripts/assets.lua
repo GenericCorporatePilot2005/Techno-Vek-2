@@ -96,6 +96,10 @@ for _, file in ipairs(files) do
 	modApi:appendAsset("img/combat/icons/".. file, path.. "img/combat/icons/" .. file)
 	Location["combat/icons/"..file] = Point(-12,12)
 end
+
+modApi:appendAsset("img/combat/icons/icon_Nico_Kill_lava.png", path.."img/combat/icons/icon_Nico_Kill_lava.png")
+Location["combat/icons/icon_Nico_Kill_lava.png"] = Point(-16,9)
+
 modApi:appendAsset("img/combat/icons/icon_swap_acid_off_glowB.png", path.. "img/combat/icons/icon_swap_acid_off_glowB.png")
 Location["combat/icons/icon_swap_acid_off_glowB.png"] = Point(-10,9)
 
