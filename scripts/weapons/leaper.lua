@@ -99,68 +99,6 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 	return ret
 end
 
---[[function Leaper_Talons:GetSecondTargetArea(p1, p2)
-	
-	local ret = PointList()
-	if Board:GetPawn(p1):GetType() == "Nico_Techno_Leaper" then
-		ret = Board:GetReachable(p1, Global_Nico_Move_Speed, 1)
-		local i = 1
-		while i <= ret:size() do
-			if Board:IsTerrain(ret:index(i),TERRAIN_HOLE) or ret:index(i) == p2 then
-				ret:erase(i)
-				i = i - 1
-			end
-			i = i + 1
-		end
-	else
-		ret = Board:GetReachable(p1, Global_Nico_Move_Speed, Board:GetPawn(p1):GetPathProf())
-		local i = 1
-		while i <= ret:size() do
-			if ret:index(i) == p2 then
-				ret:erase(i)
-				i = i - 1
-			end
-			i = i + 1
-		end
-	end
-	ret:push_back(p1)
-	return ret
-end
-
-function Leaper_Talons:IsTwoClickException(p1,p2)
-	local second_area = self:GetSecondTargetArea(p1,p2)
-	if second_area:size() == 1 then
-		return true
-	end
-	return false
-end
-
-function Leaper_Talons:GetFinalEffect(p1, p2, p3)--copied from Control Shot since it's the same thing
-	local ret = self:GetSkillEffect(p1, p2)
-	if p1 == p3 then return ret end
-	local target_pawn = Board:GetPawn(p1)
-	if target_pawn:GetType() == "Nico_Techno_Leaper" then
-		local move = PointList()
-		move:push_back(p1)
-		move:push_back(p3)
-
-		ret:AddSound("/enemy/leaper_1/move")
-		ret:AddBurst(p1,"Emitter_Burst_$tile",DIR_NONE)
-		ret:AddLeap(move,FULL_DELAY)
-		ret:AddBurst(p3,"Emitter_Crack_Start2",DIR_NONE)
-		ret:AddBounce(p3, 1)
-
-		ret:AddSound("/enemy/leaper_1/land")
-	elseif target_pawn:IsJumper() then
-		ret:AddLeap(Board:GetPath(p1, p3, target_pawn:GetPathProf()),FULL_DELAY)
-	elseif target_pawn:IsBurrower() then
-		ret:AddBurrow(Board:GetPath(p1, p3, target_pawn:GetPathProf()),FULL_DELAY)
-	else
-		ret:AddMove(Board:GetPath(p1, p3, target_pawn:GetPathProf()), FULL_DELAY)
-	end
-	return ret
-end]]
-
 Leaper_Talons_A= Leaper_Talons:new{
 	Fire=true,
 	UpgradeDescription = "Light the target on fire. If the target is killed, gain bonus movement equal to excess damage dealt.",
