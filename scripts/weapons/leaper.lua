@@ -1,11 +1,10 @@
 Leaper_Talons = LeaperAtk1:new{
 	Name = "Titanite Talons",
 	Class="TechnoVek",
-	Description = "Slice an adjacent tile, greatly damaging and flipping it, then move away up to one tile.",
+	Description = "Slice an adjacent tile, greatly damaging and flipping it, and gain 1 bonus tile movement.",
     Icon = "weapons/enemy_leaper2.png",
 	Damage = 3,
 	Fire = false,
-	TwoClick = true,
 	SoundBase = "/enemy/leaper_2",
 	PowerCost=0,
 	Upgrades=2,
@@ -17,7 +16,7 @@ Leaper_Talons = LeaperAtk1:new{
 		Building1 = Point(2,0),
 		Queued1 = Point(2,1),
 		Target = Point(2,2),
-		Second_Click = Point(3,3),
+		Second_Target = Point(3,3),
 		CustomEnemy = "Firefly2",
 		CustomPawn = "Nico_Techno_Leaper",
 	}
@@ -27,12 +26,12 @@ modApi:addWeaponDrop("Leaper_Talons")
 function Leaper_Talons:GetSkillEffect(p1, p2)
 	local ret = SkillEffect()
 	local direction = GetDirection(p2 - p1)
-
+	local mechId = Board:GetPawn(p1):GetId()
 	local damage = SpaceDamage(p2,self.Damage,DIR_FLIP)
 	damage.sSound="/weapons/sword"
 	damage.sAnimation="SwipeClaw2"
 	damage.bKO_Effect = false
-	Global_Nico_Move_Speed = (self.Damage == 4 and 2) or 1
+	local bonusMove = (self.Damage == 4 and 2) or 1
 	if self.Fire then
 		local dpawn = Board:GetPawn(p2)
 		if not Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) or Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) and dpawn:IsFlying() then
@@ -59,7 +58,7 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 			elseif Board:IsTerrain(p2,TERRAIN_ICE) and not dpawn:IsFlying() and not dpawn:IsMassive() then
 				health = 0
 			end
-			Global_Nico_Move_Speed = Global_Nico_Move_Speed + dam_dealt - health
+			bonusMove = bonusMove + dam_dealt - health
 		end
 		damage.bKO_Effect = false
 	end
@@ -89,15 +88,19 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 			if modApi.achievements:isComplete("Nico_Techno_Veks 2", "Nico_Techno_Centipede") and modApi.achievements:isComplete("Nico_Techno_Veks 2", "Nico_Techno_Psion") then ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Shield')") end
 		end
 	end
+	
+	ret:AddScript("Board:GetPawn("..mechId.."):SetActive(true)")
+	if self.Damage == 4 then
+		if bonusMove < 2 then bonusMove = 2 end
+	elseif bonusMove < 1 then
+		bonusMove = 1
+	end
+	ret:AddScript("Board:GetPawn("..mechId.."):SetBonusMove("..bonusMove..")")
 	return ret
 end
 
-function Leaper_Talons:GetSecondTargetArea(p1, p2)
-	if self.Damage == 4 then
-		if (Global_Nico_Move_Speed == nil or Global_Nico_Move_Speed < 2) then Global_Nico_Move_Speed = 2 end
-	elseif (Global_Nico_Move_Speed == nil or Global_Nico_Move_Speed < 1) then
-		Global_Nico_Move_Speed = 1
-	end
+--[[function Leaper_Talons:GetSecondTargetArea(p1, p2)
+	
 	local ret = PointList()
 	if Board:GetPawn(p1):GetType() == "Nico_Techno_Leaper" then
 		ret = Board:GetReachable(p1, Global_Nico_Move_Speed, 1)
@@ -156,7 +159,7 @@ function Leaper_Talons:GetFinalEffect(p1, p2, p3)--copied from Control Shot sinc
 		ret:AddMove(Board:GetPath(p1, p3, target_pawn:GetPathProf()), FULL_DELAY)
 	end
 	return ret
-end
+end]]
 
 Leaper_Talons_A= Leaper_Talons:new{
 	Fire=true,
@@ -167,7 +170,7 @@ Leaper_Talons_A= Leaper_Talons:new{
 		Building1 = Point(2,0),
 		Queued1 = Point(2,1),
 		Target = Point(2,2),
-		Second_Click = Point(3,3),
+		Second_Target = Point(3,3),
 		CustomEnemy = "Firefly2",
 		CustomPawn = "Nico_Techno_Leaper",
 	}
@@ -181,7 +184,7 @@ Leaper_Talons_B= Leaper_Talons:new{
 		Building1 = Point(2,0),
 		Queued1 = Point(2,1),
 		Target = Point(2,2),
-		Second_Click = Point(4,3),
+		Second_Target = Point(4,3),
 		CustomEnemy = "Firefly2",
 		CustomPawn = "Nico_Techno_Leaper",
 	}
@@ -200,7 +203,7 @@ Leaper_Talons_Tip = Leaper_Talons:new{
 		Building1 = Point(2,0),
 		Queued1 = Point(2,1),
 		Target = Point(2,2),
-		Second_Click = Point(4,3),
+		Second_Target = Point(4,3),
 		CustomEnemy = "FireflyBoss",
 		CustomPawn = "Nico_Techno_Leaper",
 	}
