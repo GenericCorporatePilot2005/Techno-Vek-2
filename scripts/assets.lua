@@ -26,14 +26,12 @@ local files = {
 	"Nico_Techno_Leaper_h.png",
 	"Nico_Techno_Psion.png",
 	"Nico_Techno_Psion_a.png",
-	"Nico_Techno_Psion_w.png",
 	"Nico_Techno_Psion_w_broken.png",
 	"Nico_Techno_Psion_broken.png",
 	"Nico_Techno_Psion_ns.png",
 	"Nico_Techno_Psion_h.png",
 	"Nico_Techno_Shield.png",
 	"Nico_Techno_Shield_a.png",
-	"Nico_Techno_Shield_w.png",
 	"Nico_Techno_Shield_w_broken.png",
 	"Nico_Techno_Shield_broken.png",
 	"Nico_Techno_Shield_ns.png",
@@ -57,20 +55,20 @@ local a=ANIMS
 	a.Nico_Techno_Leaper_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Leaper_ns.png" }
 	a.Nico_Techno_Psion = a.MechUnit:new{Image="units/player/Nico_Techno_Psion.png", PosX = -27, PosY = -14}
 	a.Nico_Techno_Psiona = a.MechUnit:new{Image="units/player/Nico_Techno_Psion_a.png", PosX = -15, PosY = -10, NumFrames = 4 }
-	a.Nico_Techno_Psionw = a.MechUnit:new{Image="unitsplayer/Nico_Techno_Psion_w.png", PosX = -24, PosY = 6 }
 	a.Nico_Techno_Psion_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Psion_broken.png", PosX = -22, PosY = -10 }
 	a.Nico_Techno_Psionw_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Psion_w_broken.png", PosX = -22, PosY = 6}
 	a.Nico_Techno_Psion_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Psion_ns.png" }
 	a.Nico_Techno_Shield = a.MechUnit:new{Image="units/player/Nico_Techno_Shield.png", PosX = -27, PosY = -14}
 	a.Nico_Techno_Shielda = a.MechUnit:new{Image="units/player/Nico_Techno_Shield_a.png", PosX = -15, PosY = -10, NumFrames = 8 }
-	a.Nico_Techno_Shieldw = a.MechUnit:new{Image="unitsplayer/Nico_Techno_Shield_w.png", PosX = -24, PosY = 6 }
 	a.Nico_Techno_Shield_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Shield_broken.png", PosX = -22, PosY = -10 }
 	a.Nico_Techno_Shieldw_broken = a.MechUnit:new{Image="units/player/Nico_Techno_Shield_w_broken.png", PosX = -22, PosY = 6}
 	a.Nico_Techno_Shield_ns = a.MechIcon:new{Image="units/player/Nico_Techno_Shield_ns.png"}
 --weapon icons and damage icons
 
-modApi:appendAsset("img/combat/icons/icon_Nico_lava.png", path.."img/combat/icons/icon_Nico_lava.png")
+modApi:copyAsset("img/combat/icons/icon_lava.png", "img/combat/icons/icon_Nico_lava.png")
 Location["combat/icons/icon_Nico_lava.png"] = Point(-12,12)
+modApi:copyAsset("img/combat/icons/icon_acid_water.png","img/combat/icons/icon_Nico_acid_water.png")
+Location["combat/icons/icon_Nico_acid_water.png"] = Point(-12,12)
 modApi:appendAsset("img/weapons/Psion_weapon.png", path .."img/weapons/Psion_weapon.png")
 modApi:appendAsset("img/weapons/Shield_weapon.png", path .."img/weapons/Shield_weapon.png")
 
@@ -87,15 +85,8 @@ for _, file in ipairs(files) do
 	Location["combat/icons/"..file] = Point(-22,9)
 end
 
-local files = {
-	"icon_Nico_power_glow.png",
-	"icon_Nico_acid_water.png",
-	"icon_Nico_lava.png",
-}
-for _, file in ipairs(files) do
-	modApi:appendAsset("img/combat/icons/".. file, path.. "img/combat/icons/" .. file)
-	Location["combat/icons/"..file] = Point(-12,12)
-end
+modApi:appendAsset("img/combat/icons/icon_Nico_power_glow.png", path.. "img/combat/icons/icon_Nico_power_glow.png")
+Location["combat/icons/icon_Nico_power_glow.png"] = Point(-12,12)
 
 modApi:appendAsset("img/combat/icons/icon_Nico_Kill_lava.png", path.."img/combat/icons/icon_Nico_Kill_lava.png")
 Location["combat/icons/icon_Nico_Kill_lava.png"] = Point(-16,9)
