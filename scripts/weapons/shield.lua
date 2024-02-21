@@ -1,18 +1,18 @@
 
-Shield_attack=Tentacle_attack:new{
-	Name="Psionic Projector",
-	Class="TechnoVek",
-	Description="Remotely target a tile, pushing adjacent tiles. Shields Buildings and allied units.",
-	Icon="weapons/Shield_weapon.png",
-	Damage=0,
-	DoDamage=false,
-	ReAct=false,
-	PowerCost=0,
-	ExplosionCenter="Radio_Burst",
-	Upgrades=2,
-	UpgradeCost={3,2},
-	UpgradeList={"OverCharge","+2 Damage"},
-	UpShot="",
+Shield_attack = Tentacle_attack:new{
+	Name = "Psionic Projector",
+	Class = "TechnoVek",
+	Description = "Remotely target a tile, pushing adjacent tiles. Shields Buildings and allied units.",
+	Icon = "weapons/Shield_weapon.png",
+	Damage = 0,
+	DoDamage = false,
+	ReAct = false,
+	PowerCost = 0,
+	ExplosionCenter = "Radio_Burst",
+	Upgrades = 2,
+	UpgradeCost = {3,2},
+	UpgradeList = {"OverCharge","+2 Damage"},
+	UpShot = "",
 	LaunchSound = "/weapons/arachnoid_ko",
 	ImpactSound = "/impact/generic/explosion",
 	TipImage = {
@@ -45,13 +45,13 @@ function Shield_attack:GetSkillEffect(p1,p2)
 	ret:AddBounce(p2,2)
 	ret:AddDamage(radio)
 
-	local shield=SpaceDamage(p2)
-	local powered=SpaceDamage(p2)
+	local shield = SpaceDamage(p2)
+	shield.iShield=1
+	local powered = SpaceDamage(p2)
 	if Board:GetPawnTeam(p2) == TEAM_PLAYER then
-		shield.iShield=1
 		if self.ReAct and (not tpawn:IsActive() or Board:GetSize() == Point(6,6)) then
-			shield.bHide=true
-			powered.sImageMark="combat/icons/icon_Nico_power_glow.png"
+			shield.bHide = true
+			powered.sImageMark = "combat/icons/icon_Nico_power_glow.png"
 			ret:AddScript(string.format("Board:GetPawn(%s):SetActive(true)", p2:GetString()))
 			ret:AddScript(string.format("Board:GetPawn(%s):SetMovementSpent(false)", p2:GetString()))
 			ret:AddScript(string.format("Board:Ping(%s,GL_Color(197,255,255))", p2:GetString())) -- cool animation
@@ -61,15 +61,13 @@ function Shield_attack:GetSkillEffect(p1,p2)
 			ret:AddDamage(shield)
 		end
 	elseif Board:IsBuilding(p2) then
-		shield.iShield=1
 		ret:AddDamage(shield)
 	elseif self.DoDamage then
-		shield.iShield=0
-		shield.sAnimation="shield_explo"
-		shield.iDamage=self.Damage
+		shield.iShield = 0
+		shield.sAnimation = "shield_explo"
+		shield.iDamage = self.Damage
 		ret:AddDamage(shield)
 	else
-		shield.iShield=1
 		ret:AddDamage(shield)
 	end
 	

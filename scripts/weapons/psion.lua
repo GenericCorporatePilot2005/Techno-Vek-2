@@ -7,24 +7,24 @@ ANIMS.Radio_Burst = Animation:new{
 	Loop = false,
 }
 Tentacle_attack=Skill:new{
-	Name="Psionic Transmitter",
-	Class="TechnoVek",
-	Description="Remotely damage and crack a tile, pushing adjacent tiles.\nDoesn't damage buildings.\nIf the target is an ally or building, crack adjacent tiles instead.\nIf it targets a chasm, replaces it with lava and does KILL damage.",
-	Icon="weapons/Psion_weapon.png",
-	Damage=1,
-	PowerCost=0,
-	Upgrades=2,
-	UpgradeCost={2,2},
-	UpgradeList={"Melt & Flip","+1 Damage & Heal Ally"},
+	Name = "Psionic Transmitter",
+	Class = "TechnoVek",
+	Description = "Remotely damage and crack a tile, pushing adjacent tiles.\nDoesn't damage buildings.\nIf the target is an ally or building, crack adjacent tiles instead.\nIf it targets a chasm, replaces it with lava and does KILL damage.",
+	Icon = "weapons/Psion_weapon.png",
+	Damage = 1,
+	PowerCost = 0,
+	Upgrades = 2,
+	UpgradeCost = {2,2},
+	UpgradeList = {"Melt & Flip","+1 Damage & Heal Ally"},
 	LaunchSound = "/weapons/arachnoid_ko",
 	ImpactSound = "/impact/generic/explosion",
-	TipImage={
+	TipImage = {
 		Unit = Point(2,2),
-		Second_Origin=Point(2,2),
+		Second_Origin = Point(2,2),
 		Mountain = Point(0,2),
 		Enemy1 = Point(2,0),
 		Target = Point(0,2),
-		Second_Target=Point(2,0),
+		Second_Target = Point(2,0),
 		CustomPawn = "Nico_Techno_Psion",
 	}
 }
@@ -52,26 +52,26 @@ end
 function Tentacle_attack:GetSkillEffect(p1, p2)	
 	local ret = SkillEffect()
 	local dir = GetDirection(p2 - p1)
-	local radio=SpaceDamage(p1,0)
-	radio.sAnimation="Radio_Burst"
-	radio.sSound=self.LaunchSound
+	local radio = SpaceDamage(p1,0)
+	radio.sAnimation = "Radio_Burst"
+	radio.sSound = self.LaunchSound
 	ret:AddBounce(p1,1)
 	ret:AddDamage(radio)
 	radio=SpaceDamage(p2,0)
-	radio.sAnimation="Radio_Burst"
+	radio.sAnimation = "Radio_Burst"
 	ret:AddBounce(p2,2)
 	ret:AddDamage(radio)
 
 	local anim1=SpaceDamage(p2)
-	anim1.sAnimation="PsionAttack_Front"
-	anim1.sSound=self.ImpactSound
-	local anim2=SpaceDamage(p2)
-	anim2.sAnimation="PsionAttack_Back"
-	anim2.bHide=true
+	anim1.sAnimation = "PsionAttack_Front"
+	anim1.sSound = self.ImpactSound
+	local anim2 = SpaceDamage(p2)
+	anim2.sAnimation = "PsionAttack_Back"
+	anim2.bHide = true
 	if Board:IsBuilding(p2) then
-		anim1.iDamage=DAMAGE_ZERO
+		anim1.iDamage = DAMAGE_ZERO
 	elseif self.Heal and Board:GetPawnTeam(p2) == TEAM_PLAYER then
-		anim1.iDamage=-1
+		anim1.iDamage = -1
 	else
 		anim1.iDamage=self.Damage
 		if Board:IsTerrain(p2,TERRAIN_FOREST) and Board:IsPawnSpace(p2) and not Board:GetPawn(p2):IsShield() and not Board:GetPawn(p2):IsFrozen() and Board:GetPawnTeam(p2) ~= TEAM_PLAYER then
@@ -82,18 +82,18 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 			anim1.iCrack=EFFECT_CREATE
 		elseif Board:GetTerrain(p2) == TERRAIN_HOLE then
 			anim1 = SpaceDamage(p2,DAMAGE_DEATH)
-			anim1.sImageMark="combat/icons/icon_Nico_Kill_lava.png"
+			anim1.sImageMark = "combat/icons/icon_Nico_Kill_lava.png"
 			anim1.iTerrain = TERRAIN_LAVA
-			anim1.sAnimation="tentacles"
-			anim2.sAnimation="Splash_lava"
+			anim1.sAnimation = "tentacles"
+			anim2.sAnimation = "Splash_lava"
 		elseif Board:GetTerrain(p2) == TERRAIN_WATER then
-			local watereffect=SpaceDamage(p2,0)
+			local watereffect = SpaceDamage(p2,0)
 			if Board:IsAcid(p2) then
-				watereffect.sAnimation="Splash_acid"
+				watereffect.sAnimation = "Splash_acid"
 			elseif Board:IsTerrain(p2,TERRAIN_LAVA) then
-				watereffect.sAnimation="Splash_lava"
+				watereffect.sAnimation = "Splash_lava"
 			else
-				watereffect.sAnimation="Splash"
+				watereffect.sAnimation = "Splash"
 			end
 			ret:AddDamage(watereffect)
 		end
@@ -150,30 +150,30 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 	local ret = self:GetSkillEffect(p1,p2)
 	dir = GetDirection(p3-p1)
 	
-	radio=SpaceDamage(p3,0)
-	radio.sAnimation="Radio_Burst"
+	radio = SpaceDamage(p3,0)
+	radio.sAnimation = "Radio_Burst"
 	ret:AddBounce(p3,2)
 	ret:AddDamage(radio)
 
-	local anim1=SpaceDamage(p3)
-	anim1.sAnimation="PsionAttack_Front"
-	local anim2=SpaceDamage(p3)
-	anim2.sAnimation="PsionAttack_Back"
-	anim2.bHide=true
+	local anim1 = SpaceDamage(p3)
+	anim1.sAnimation = "PsionAttack_Front"
+	local anim2 = SpaceDamage(p3)
+	anim2.sAnimation = "PsionAttack_Back"
+	anim2.bHide = true
 	if Board:IsBuilding(p3) then
-		anim1.iDamage=0
+		anim1.iDamage = 0
 	elseif self.Heal and Board:GetPawnTeam(p3) == TEAM_PLAYER then
-		anim1.iDamage=-1
+		anim1.iDamage = -1
 	else
-		if Board:GetPawnTeam(p3)==TEAM_ENEMY then
+		if Board:GetPawnTeam(p3) == TEAM_ENEMY then
 			anim1=SpaceDamage(p3,self.Damage,DIR_FLIP)
-			anim1.sAnimation="PsionAttack_Front"
+			anim1.sAnimation = "PsionAttack_Front"
 		elseif Board:GetTerrain(p3) == TERRAIN_HOLE then
 			anim1 = SpaceDamage(p3,DAMAGE_DEATH)
-			anim1.sImageMark="combat/icons/icon_Nico_Kill_lava.png"
+			anim1.sImageMark = "combat/icons/icon_Nico_Kill_lava.png"
 			anim1.iTerrain = TERRAIN_LAVA
-			anim1.sAnimation="tentacles"
-			anim2.sAnimation="Splash_lava"
+			anim1.sAnimation = "tentacles"
+			anim2.sAnimation = "Splash_lava"
 		else
 			anim1.iDamage=self.Damage
 		end
