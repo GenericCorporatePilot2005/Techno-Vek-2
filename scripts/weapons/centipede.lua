@@ -1,17 +1,17 @@
-Acidic_Vomit=CentipedeAtk1:new{
-	Name="Splattering Gunk",
-	Class="TechnoVek",
-	Description="Fire a damaging projectile that applies A.C.I.D. and flips nearby targets.",
+Acidic_Vomit = CentipedeAtk1:new{
+	Name = "Splattering Gunk",
+	Class = "TechnoVek",
+	Description = "Fire a damaging projectile that applies A.C.I.D. and flips nearby targets.",
 	Icon = "weapons/enemy_firefly2.png",
-	Damage=1,
-	Acid=EFFECT_CREATE,
+	Damage = 1,
+	Acid = EFFECT_CREATE,
 	Spill = false,
-	BuildingDamage=true,
-	PowerCost=0,
-	Upgrades=2,
-	UpgradeCost={1,3},
+	BuildingDamage = true,
+	PowerCost = 0,
+	Upgrades = 2,
+	UpgradeCost = {1,3},
 	UpgradeList = { "Building Chain",  "Spill & Melt"},
-	LaunchSound="/weapons/acid_shot",
+	LaunchSound = "/weapons/acid_shot",
 	ImpactSound = "/impact/dynamic/enemy_projectile",
 	Projectile = "effects/shot_firefly2",
 	Explosion = "",--ExploFirefly2",
@@ -47,12 +47,15 @@ function Acidic_Vomit:DamageCalc(p1,p2,p3)
 	local dam = SpaceDamage(p3,1)
 	dam.iAcid = 1
 	dam.sAnimation = "Splash_acid"
-	if Board:IsPawnSpace(dam.loc) then
-		dam.sImageMark = "combat/icons/icon_swap_acid_glow.png"
-	elseif Board:IsBuilding(dam.loc) and not self.BuildingDamage then
-		dam.sImageMark = "combat/icons/icon_swap_acid_off_glowB.png"
-	elseif not Board:IsPawnSpace(dam.loc) then
-		dam.sImageMark = "combat/icons/icon_swap_acid_off_glow.png"
+	if Board:GetCustomTile(dam.loc) == "tosx_whirlpool_0.png" then
+	else
+		if Board:IsPawnSpace(dam.loc) then
+			dam.sImageMark = "combat/icons/icon_swap_acid_glow.png"
+		elseif Board:IsBuilding(dam.loc) and not self.BuildingDamage then
+			dam.sImageMark = "combat/icons/icon_swap_acid_off_glowB.png"
+		elseif not Board:IsPawnSpace(dam.loc) then
+			dam.sImageMark = "combat/icons/icon_swap_acid_off_glow.png"
+		end
 	end
 	target = GetProjectileEnd(p1,p2)
 	if (p3 == target + DIR_VECTORS[(dir - 1)% 4]) or (p3 == target) or (p3 == target + DIR_VECTORS[(dir + 1)% 4]) then
@@ -60,7 +63,7 @@ function Acidic_Vomit:DamageCalc(p1,p2,p3)
 			dam.iAcid = 0
 			dam.iDamage = 0
 			dam.iTerrain = TERRAIN_WATER
-			dam.sImageMark = "combat/icons/icon_Nico_acid_water.png"
+			if Board:GetCustomTile(dam.loc) ~= "tosx_whirlpool_0.png" then dam.sImageMark = "combat/icons/icon_Nico_acid_water.png" end
 		else
 			dam.iPush = DIR_FLIP
 		end
@@ -119,21 +122,25 @@ function Acidic_Vomit:GetSkillEffect(p1,p2)
 			local curr = pop_back(future)
 			local damage = SpaceDamage(curr,1,DIR_FLIP)
 			damage.iAcid = 1
-			if Board:IsPawnSpace(damage.loc) then
-				damage.sImageMark = "combat/icons/icon_swap_acid_glow.png"
-			else
-				damage.sImageMark = "combat/icons/icon_swap_acid_off_glow.png"
+			if Board:GetCustomTile(damage.loc) ~= "tosx_whirlpool_0.png" then
+				if Board:IsPawnSpace(damage.loc) then
+					damage.sImageMark = "combat/icons/icon_swap_acid_glow.png"
+				else
+					damage.sImageMark = "combat/icons/icon_swap_acid_off_glow.png"
+				end
 			end
 			damage.sAnimation = "Splash_acid"
 			if Board:IsBuilding(curr) then
 				damage.iDamage = 0
 				for direc = DIR_START, DIR_END do
-					if Board:IsBuilding(damage.loc) then
-						damage.sImageMark = "combat/icons/icon_swap_acid_off_glowB.png"
-					elseif Board:IsPawnSpace(damage.loc) then
-						damage.sImageMark = "combat/icons/icon_swap_acid_glow.png"
-					else
-						damage.sImageMark = "combat/icons/icon_swap_acid_off_glow.png"
+					if Board:GetCustomTile(damage.loc) ~= "tosx_whirlpool_0.png" then
+						if Board:IsBuilding(damage.loc) then
+							damage.sImageMark = "combat/icons/icon_swap_acid_off_glowB.png"
+						elseif Board:IsPawnSpace(damage.loc) then
+							damage.sImageMark = "combat/icons/icon_swap_acid_glow.png"
+						else
+							damage.sImageMark = "combat/icons/icon_swap_acid_off_glow.png"
+						end
 					end
 					local n = curr + DIR_VECTORS[direc]
 					if not list_contains(explored, n) then
@@ -145,7 +152,7 @@ function Acidic_Vomit:GetSkillEffect(p1,p2)
 			if self.Spill and ((Board:IsAcid(curr) and Board:GetTerrain(curr) ~= TERRAIN_ICE and Board:GetTerrain(curr) ~= TERRAIN_WATER and (not Board:IsCracked(curr)) and (not Board:IsBuilding(curr))) or (Board:IsPawnSpace(curr) and (Board:GetPawn(curr):GetType() == "AcidVat" or Board:GetPawn(curr):GetType() == "Storm_Generator"))) then
 				damage = SpaceDamage(curr,0)
 				damage.iTerrain = TERRAIN_WATER
-				damage.sImageMark = "combat/icons/icon_Nico_acid_water.png"
+				if Board:GetCustomTile(damage.loc) ~= "tosx_whirlpool_0.png" then damage.sImageMark = "combat/icons/icon_Nico_acid_water.png" end
 			end
 			if (curr ~= p1 and not list_contains(damaged_squares, curr)) then
 				ret:AddDamage(damage)
@@ -173,11 +180,11 @@ function Acidic_Vomit:GetSkillEffect(p1,p2)
 	
     return ret
 end
-Acidic_Vomit_A=Acidic_Vomit:new{
-	BuildingDamage=false,
+Acidic_Vomit_A = Acidic_Vomit:new{
+	BuildingDamage = false,
 	UpgradeDescription = "Chains through buildings instead of damaging them, damaging, flipping and applying A.C.I.D. to adjacent squares.",
 }
-Acidic_Vomit_B=Acidic_Vomit:new{
+Acidic_Vomit_B = Acidic_Vomit:new{
 	Spill = true,
 	UpgradeDescription = "Applies damaging A.C.I.D. on all tiles it passes through, and melts tiles with A.C.I.D. on them.",
 	TipImage = {
@@ -193,7 +200,7 @@ Acidic_Vomit_B=Acidic_Vomit:new{
 		CustomPawn = "Nico_Techno_Centipede",
 	}
 }
-Acidic_Vomit_AB=Acidic_Vomit_A:new{
+Acidic_Vomit_AB = Acidic_Vomit_A:new{
 	Spill = true,
 	TipImage = {
 		Unit = Point(2,4),

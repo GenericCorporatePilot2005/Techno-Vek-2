@@ -1,13 +1,13 @@
 Leaper_Talons = LeaperAtk1:new{
 	Name = "Titanite Talons",
-	Class="TechnoVek",
+	Class = "TechnoVek",
 	Description = "Slice an adjacent tile, greatly damaging and flipping it, and gain 1 bonus tile movement.",
     Icon = "weapons/enemy_leaper2.png",
 	Damage = 3,
 	Fire = false,
 	SoundBase = "/enemy/leaper_2",
-	PowerCost=0,
-	Upgrades=2,
+	PowerCost = 0,
+	Upgrades = 2,
 	UpgradeCost = { 2 , 2 },
 	UpgradeList = { "Ignite & Overkill Move",  "Damage & Move"  },
 	TipImage = {
@@ -28,20 +28,22 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 	local direction = GetDirection(p2 - p1)
 	local mechId = Board:GetPawn(p1):GetId()
 	local damage = SpaceDamage(p2,self.Damage,DIR_FLIP)
-	damage.sSound="/weapons/sword"
-	damage.sAnimation="SwipeClaw2"
+	damage.sSound = "/weapons/sword"
+	damage.sAnimation = "SwipeClaw2"
 	damage.bKO_Effect = false
 	local bonusMove = (self.Damage == 4 and 2) or 1
 	if self.Fire then
 		local dpawn = Board:GetPawn(p2)
-		if not Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) or Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) and dpawn:IsFlying() then
-			damage.sImageMark = "combat/icons/Nico_icon_swap_fire_glowA.png"
-		elseif not Board:IsTerrain(damage.loc,TERRAIN_WATER) and not Board:IsPawnSpace(damage.loc) then
-			damage.sImageMark = "combat/icons/Nico_icon_swap_fire_off_glowB.png"
-		elseif Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) and not dpawn:IsFlying() then
-			damage.sImageMark = "combat/icons/Nico_icon_swap_fire_glowB.png"
-		elseif Board:IsTerrain(damage.loc,TERRAIN_WATER) and not Board:IsPawnSpace(damage.loc) then
-			damage.sImageMark = "combat/icons/Nico_icon_swap_fire_off_glowA.png"
+		if Board:GetCustomTile(damage.loc) ~= "tosx_whirlpool_0.png" then
+			if not Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) or Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) and dpawn:IsFlying() then
+				damage.sImageMark = "combat/icons/Nico_icon_swap_fire_glowA.png"
+			elseif not Board:IsTerrain(damage.loc,TERRAIN_WATER) and not Board:IsPawnSpace(damage.loc) then
+				damage.sImageMark = "combat/icons/Nico_icon_swap_fire_off_glowB.png"
+			elseif Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) and not dpawn:IsFlying() then
+				damage.sImageMark = "combat/icons/Nico_icon_swap_fire_glowB.png"
+			elseif Board:IsTerrain(damage.loc,TERRAIN_WATER) and not Board:IsPawnSpace(damage.loc) then
+				damage.sImageMark = "combat/icons/Nico_icon_swap_fire_off_glowA.png"
+			end
 		end
 		damage.iFire = 1
 		if Board:IsDeadly(damage,Pawn) then
