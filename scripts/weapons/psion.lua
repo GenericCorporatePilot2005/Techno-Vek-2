@@ -18,15 +18,7 @@ Tentacle_attack=Skill:new{
 	UpgradeList = {"Melt & Flip","+1 Damage & Heal Ally"},
 	LaunchSound = "/weapons/arachnoid_ko",
 	ImpactSound = "/impact/generic/explosion",
-	TipImage = {
-		Unit = Point(2,2),
-		Second_Origin = Point(2,2),
-		Mountain = Point(0,2),
-		Enemy1 = Point(2,0),
-		Target = Point(0,2),
-		Second_Target = Point(2,0),
-		CustomPawn = "Nico_Techno_Psion",
-	}
+	CustomTipImage = "Tentacle_attack_Tip",
 }
 
 function Tentacle_attack:GetTargetArea(point)
@@ -117,21 +109,10 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 	return ret
 end
 
-modApi:addWeaponDrop("Tentacle_attack")
-
 Tentacle_attack_A=Tentacle_attack:new{
 	TwoClick = true,
 	UpgradeDescription = "Melts tile under self into lava, and fire a second non-pushing shot that flips in a different direction.",
-	TipImage={
-		Unit = Point(2,2),
-		Mountain = Point(0,2),
-		Enemy1 = Point(2,0),
-		Queued1 = Point(2,1),
-		Target = Point(0,2),
-		Second_Click=Point(2,0),
-		CustomEnemy = "Firefly1",
-		CustomPawn = "Nico_Techno_Psion",
-	}
+	CustomTipImage = "Tentacle_attack_Tip_A",
 }
 function Tentacle_attack_A:GetSecondTargetArea(p1,p2)
 	local ret = PointList()
@@ -226,29 +207,123 @@ Tentacle_attack_B=Tentacle_attack:new{
 	Damage=2,
 	Heal=true,
 	UpgradeDescription="Increases damage to enemies by 1 and heals allies instead of damaging.",
-	TipImage = {
-		Unit = Point(2,4),
-		Second_Origin=Point(2,4),
-		Enemy = Point(2,0),
-		Target = Point(2,2),
-		Second_Target=Point(2,0),
-		Friendly_Damaged = Point(2,2),
-		CustomPawn = "Nico_Techno_Psion",
-		Length = 5,
-	},
+	CustomTipImage = "Tentacle_attack_Tip_B",
 }
 Tentacle_attack_AB=Tentacle_attack_A:new{
 	Damage=2,
 	TwoClick = true,
 	Heal=true,
+	CustomTipImage = "Tentacle_attack_Tip_AB",
+}
+Tentacle_attack_Tip = Tentacle_attack:new{
 	TipImage = {
 		Unit = Point(2,2),
-		Friendly_Damaged = Point(0,2),
+		Target = Point(2,0),
+		Mountain = Point(0,2),
 		Enemy1 = Point(2,0),
-		Queued1 = Point(2,1),
-		Target = Point(0,2),
-		Second_Click=Point(2,0),
-		CustomEnemy = "Firefly1",
+		Hole = Point(2,4),
+		Enemy2 = Point(2,4),
+		Building = Point(4,2),
+		CustomEnemy = "Hornet2",
 		CustomPawn = "Nico_Techno_Psion",
 	}
 }
+Tentacle_attack_Tip_A = Tentacle_attack_A:new{
+	TipImage = {
+		Unit = Point(2,2),
+		Mountain = Point(0,2),
+		Enemy1 = Point(2,0),
+		Hole = Point(2,4),
+		Enemy2 = Point(2,4),
+		Target = Point(4,2),
+		Second_Click = Point(0,2),
+		Building = Point(4,2),
+		CustomEnemy = "Hornet2",
+		CustomPawn = "Nico_Techno_Psion",
+	}
+	--ret = Tentacle_attack_A:GetFinalEffect(Point(2,2),Point(4,2),Point(0,2))
+}
+Tentacle_attack_Tip_B = Tentacle_attack_Tip:new{
+	Damage=2,
+	Heal=true,
+	TipImage = {
+		Unit = Point(2,2),
+		Mountain = Point(0,2),
+		Enemy1 = Point(2,0),
+		Hole = Point(2,4),
+		Enemy2 = Point(2,4),
+		Friendly_Damaged = Point(4,2),
+		CustomEnemy = "Hornet2",
+		CustomPawn = "Nico_Techno_Psion",
+	}
+}
+Tentacle_attack_Tip_AB = Tentacle_attack_Tip_A:new{
+	Damage=2,
+	Heal=true,
+	TipImage = {
+		Unit = Point(2,2),
+		Mountain = Point(0,2),
+		Enemy1 = Point(2,0),
+		Hole = Point(2,4),
+		Enemy2 = Point(2,4),
+		Target = Point(4,2),
+		Second_Click = Point(0,2),
+		Friendly_Damaged = Point(4,2),
+		CustomEnemy = "Hornet2",
+		CustomPawn = "Nico_Techno_Psion",
+	}
+}
+
+function Tentacle_attack_Tip:GetSkillEffect(p1, p2)
+	local ret = SkillEffect()
+	local x = math.random(4)
+	if self.Heal then
+		if x == 1 then
+			ret = Tentacle_attack_B:GetSkillEffect(Point(2,2),Point(0,2))
+		elseif x == 2 then
+			ret = Tentacle_attack_B:GetSkillEffect(Point(2,2),Point(4,2))
+		elseif x == 3 then
+			ret = Tentacle_attack_B:GetSkillEffect(Point(2,2),Point(2,0))
+		else
+			ret = Tentacle_attack_B:GetSkillEffect(Point(2,2),Point(2,4))
+		end
+	else
+		if x == 1 then
+			ret = Tentacle_attack:GetSkillEffect(Point(2,2),Point(0,2))
+		elseif x == 2 then
+			ret = Tentacle_attack:GetSkillEffect(Point(2,2),Point(4,2))
+		elseif x == 3 then
+			ret = Tentacle_attack:GetSkillEffect(Point(2,2),Point(2,0))
+		else
+			ret = Tentacle_attack:GetSkillEffect(Point(2,2),Point(2,4))
+		end
+	end
+	return ret
+end
+
+function Tentacle_attack_Tip_B:GetFinalEffect(p1,p2,p3)
+	local ret = SkillEffect()
+	local x = math.random(4)
+	if self.Heal then
+		if x == 1 then
+			ret = Tentacle_attack_AB:GetFinalEffect(Point(2,2),Point(0,2),Point(2,0))
+		elseif x == 2 then
+			ret = Tentacle_attack_AB:GetFinalEffect(Point(2,2),Point(4,2),Point(2,4))
+		elseif x == 3 then
+			ret = Tentacle_attack_AB:GetFinalEffect(Point(2,2),Point(4,2),Point(0,2))
+		else
+			ret = Tentacle_attack_AB:GetFinalEffect(Point(2,2),Point(2,0),Point(2,4))
+		end
+	else
+		if x == 1 then
+			ret = Tentacle_attack_A:GetFinalEffect(Point(2,2),Point(0,2),Point(2,0))
+		elseif x == 2 then
+			ret = Tentacle_attack_A:GetFinalEffect(Point(2,2),Point(4,2),Point(2,4))
+		elseif x == 3 then
+			ret = Tentacle_attack_A:GetFinalEffect(Point(2,2),Point(4,2),Point(0,2))
+		else
+			ret = Tentacle_attack_A:GetFinalEffect(Point(2,2),Point(2,0),Point(2,4))
+		end
+	end
+	return ret
+end

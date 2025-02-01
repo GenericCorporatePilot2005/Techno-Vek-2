@@ -54,7 +54,6 @@ end
 Nico_LeaperMove = Move:new{}
 
 function Nico_LeaperMove:GetSkillEffect(p1, p2)
-
 	local ret = SkillEffect()
 	local move = PointList()
 	move:push_back(p1)

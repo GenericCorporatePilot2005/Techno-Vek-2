@@ -39,6 +39,18 @@ function mod:init()
 
 end
 
+function mod:metadata()
+	modApi:addGenerationOption(
+		"Nico_Receiver_Class", "Psionic Receiver's Class.",
+		"Changes the Mech Class of the Psionic Receiver from none to Cyborg, this makes Cyborgs not need to pay additional cores for this passive.\nREQUIRES A RESTART TO APPLY.",
+		{
+			strings = { "Cyborg.", "All Classes."},
+			values = {"TechnoVek", ""},
+			value = "TechnoVek",
+			tooltips = {"Makes the passive cost 1 extra core to all other classes BUT CYBORG.", "Same as Vanilla."},
+		}
+	)
+end
 function mod:load( options, version)
 	-- after we have added our mechs, we can add a squad using them.
 	modApi:addSquad(

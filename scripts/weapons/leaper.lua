@@ -11,17 +11,15 @@ Leaper_Talons = LeaperAtk1:new{
 	UpgradeCost = { 2 , 2 },
 	UpgradeList = { "Ignite & Overkill Move",  "Damage & Move"  },
 	TipImage = {
-		Unit = Point(2,3),
-		Enemy1 = Point(2,2),
+		Unit = Point(2,2),
+		Enemy1 = Point(2,1),
 		Building1 = Point(2,0),
-		Queued1 = Point(2,1),
-		Target = Point(2,2),
-		Second_Target = Point(3,3),
+		Queued1 = Point(2,0),
+		Target = Point(2,1),
 		CustomEnemy = "Firefly2",
 		CustomPawn = "Nico_Techno_Leaper",
 	}
 }
-modApi:addWeaponDrop("Leaper_Talons")
 
 function Leaper_Talons:GetSkillEffect(p1, p2)
 	local ret = SkillEffect()
@@ -35,14 +33,14 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 	if self.Fire then
 		local dpawn = Board:GetPawn(p2)
 		if Board:GetCustomTile(damage.loc) ~= "tosx_whirlpool_0.png" then
-			if not Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) or Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) and dpawn:IsFlying() then
+			if (not Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc)) or (Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) and dpawn:IsFlying()) then
 				damage.sImageMark = "combat/icons/Nico_icon_swap_fire_glowA.png"
 			elseif not Board:IsTerrain(damage.loc,TERRAIN_WATER) and not Board:IsPawnSpace(damage.loc) then
 				damage.sImageMark = "combat/icons/Nico_icon_swap_fire_off_glowB.png"
-			elseif Board:IsTerrain(damage.loc,TERRAIN_WATER) and Board:IsPawnSpace(damage.loc) and not dpawn:IsFlying() then
-				damage.sImageMark = "combat/icons/Nico_icon_swap_fire_glowB.png"
 			elseif Board:IsTerrain(damage.loc,TERRAIN_WATER) and not Board:IsPawnSpace(damage.loc) then
 				damage.sImageMark = "combat/icons/Nico_icon_swap_fire_off_glowA.png"
+			else
+				damage.sImageMark = "combat/icons/Nico_icon_swap_fire_off_glowB.png"
 			end
 		end
 		damage.iFire = 1
@@ -66,11 +64,13 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 	end
 	ret:AddBounce(p2,3)
 	ret:AddMelee(p2 - DIR_VECTORS[direction], damage)
+	if self.Fire then ret:AddAnimation(p2,"explo_fire1",ANIM_NO_DELAY) end
 
 	--This section of code is custom flip for Firefly Leader and Junebug Leader
 	--Note that it has not been conditioned to check that the Leaders still exist
 	local Mirror = false
-	if Board:IsPawnSpace(p2) and (Board:GetPawn(p2):GetType() == "FireflyBoss" or Board:GetPawn(p2):GetType() == "DNT_JunebugBoss") and Board:GetPawn(p2):IsQueued()then
+	if Board:IsPawnSpace(p2) and (Board:GetPawn(p2):GetType() == "FireflyBoss" or Board:GetPawn(p2):GetType() == "DNT_JunebugBoss")
+	and Board:GetPawn(p2):IsQueued()then
 		Mirror = true
 	end
 	
@@ -97,21 +97,34 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 	elseif bonusMove < 1 then
 		bonusMove = 1
 	end
-	ret:AddScript("Board:GetPawn("..mechId.."):SetBonusMove("..bonusMove..")")
+	if Board:GetSize() == Point(6,6) then
+		local move = PointList()
+		move:push_back(Point(2,2))
+		if self.Fire and self.Damage == 4 then move:push_back(Point(0,1))--3 tiles
+		elseif self.Fire or self.Damage == 4 then move:push_back(Point(0,2))--2 tiles
+		else move:push_back(Point(1,2)) end--1 tile
+	
+		ret:AddSound("/enemy/leaper_1/move")
+		ret:AddBurst(p1,"Emitter_Burst_$tile",DIR_NONE)
+		ret:AddLeap(move,FULL_DELAY)
+	else
+		ret:AddScript("Board:GetPawn("..mechId.."):SetBonusMove("..bonusMove..")")
+	end
+
 	return ret
 end
 
 Leaper_Talons_A= Leaper_Talons:new{
 	Fire=true,
 	UpgradeDescription = "Light the target on fire. If the target is killed, gain bonus movement equal to excess damage dealt.",
+	OnKill = "Excess Damage into Movement",
 	TipImage = {
-		Unit = Point(2,3),
-		Enemy1 = Point(2,2),
+		Unit = Point(2,2),
+		Enemy1 = Point(2,1),
 		Building1 = Point(2,0),
-		Queued1 = Point(2,1),
-		Target = Point(2,2),
-		Second_Target = Point(3,3),
-		CustomEnemy = "Firefly2",
+		Queued1 = Point(2,0),
+		Target = Point(2,1),
+		CustomEnemy = "Mosquito1",
 		CustomPawn = "Nico_Techno_Leaper",
 	}
 }
@@ -119,51 +132,25 @@ Leaper_Talons_B= Leaper_Talons:new{
 	Damage = 4,
 	UpgradeDescription = "Increases damage by 1 and gain +1 bonus movement.",
 	TipImage = {
-		Unit = Point(2,3),
-		Enemy1 = Point(2,2),
+		Unit = Point(2,2),
+		Enemy1 = Point(2,1),
 		Building1 = Point(2,0),
-		Queued1 = Point(2,1),
-		Target = Point(2,2),
-		Second_Target = Point(4,3),
+		Queued1 = Point(2,0),
+		Target = Point(2,1),
 		CustomEnemy = "Firefly2",
 		CustomPawn = "Nico_Techno_Leaper",
 	}
 }
 Leaper_Talons_AB=Leaper_Talons_B:new{
 	Fire=true,
-	CustomTipImage = "Leaper_Talons_Tip",
-}
-
-Leaper_Talons_Tip = Leaper_Talons:new{
-	Class = "TechnoVek",
-	Fire=true,
+	OnKill = "Excess Damage into Movement",
 	TipImage = {
-		Unit = Point(3,2),
-		Enemy1 = Point(2,2),
+		Unit = Point(2,2),
+		Enemy1 = Point(2,1),
 		Building1 = Point(2,0),
-		Queued1 = Point(2,1),
-		Target = Point(2,2),
-		Second_Target = Point(4,3),
-		CustomEnemy = "FireflyBoss",
+		Queued1 = Point(2,0),
+		Target = Point(2,1),
+		CustomEnemy = "Firefly1",
 		CustomPawn = "Nico_Techno_Leaper",
 	}
 }
-
-function Leaper_Talons_Tip:GetSkillEffect(p1,p2)
-	local ret = SkillEffect()
-	ret.piOrigin = Point(3,2)
-	local damage = SpaceDamage(p2,4,DIR_FLIP)
-	damage.sAnimation="SwipeClaw2"
-	if self.Fire then
-		damage.sImageMark ="combat/icons/icon_fire_glow.png"
-		damage.iFire = 1
-	end
-	ret:AddMelee(p1, damage)
-	ret:AddBounce(p2,3)
-	--local damage = SpaceDamage(p2,0)
-	--damage.bHide = true
-	--damage.sAnimation = "ExploRepulseSmall"--"airpush_"..GetDirection(p2 - p1)
-	--ret:AddArtillery(damage,"effects/upshot_confuse.png")
-	ret:AddScript("Board:GetPawn("..Point(2,2):GetString().."):SetQueuedTarget("..Point(1,2):GetString()..")")
-	return ret
-end

@@ -15,6 +15,7 @@ Shield_attack = Tentacle_attack:new{
 	UpShot = "",
 	LaunchSound = "/weapons/arachnoid_ko",
 	ImpactSound = "/impact/generic/explosion",
+	CustomTipImage = "",
 	TipImage = {
 		Unit = Point(2,0),
 		Enemy = Point(3,2),
@@ -110,12 +111,12 @@ end
 Shield_attack_A=Shield_attack:new{
 	UpgradeDescription="Reactivates ally units if they have already acted.",
 	ReAct=true,
+	CustomTipImage = "",
 	TipImage = {
 		Unit = Point(2,4),
 		Enemy = Point(2,0),
 		Target = Point(2,2),
 		Friendly = Point(2,2),
-		Length = 5,
 		CustomPawn = "Nico_Techno_Shield",
 	},
 }
@@ -124,6 +125,7 @@ Shield_attack_B=Shield_attack:new{
 	DoDamage=true,
 	UpgradeDescription = "Deals 2 damage to non-friendly targets instead of shielding.",
 	Damage=2,
+	CustomTipImage = "",
 	TipImage = {
 		Unit = Point(2,4),
 		Second_Origin=Point(2,4),
@@ -131,7 +133,6 @@ Shield_attack_B=Shield_attack:new{
 		Target = Point(2,2),
 		Second_Target=Point(2,0),
 		Friendly = Point(2,2),
-		Length = 5,
 		CustomPawn = "Nico_Techno_Shield",
 	},
 }
@@ -139,6 +140,7 @@ Shield_attack_B=Shield_attack:new{
 Shield_attack_AB=Shield_attack_A:new{
 	DoDamage=true,
 	Damage=2,
+	CustomTipImage = "",
 	TipImage = {
 		Unit = Point(2,4),
 		Second_Origin=Point(2,4),
@@ -146,7 +148,6 @@ Shield_attack_AB=Shield_attack_A:new{
 		Target = Point(2,2),
 		Second_Target=Point(2,0),
 		Friendly = Point(2,2),
-		Length = 5,
 		CustomPawn = "Nico_Techno_Shield",
 	},
 }

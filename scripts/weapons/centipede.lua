@@ -27,7 +27,6 @@ Acidic_Vomit = CentipedeAtk1:new{
 	}
 }
 
-modApi:addWeaponDrop("Acidic_Vomit")
 function Acidic_Vomit:GetTargetArea(p1)
 	local ret = PointList()
 	for dir = DIR_START, DIR_END do

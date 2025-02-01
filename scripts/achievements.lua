@@ -41,10 +41,10 @@ modApi.achievements:add{
 	objective=1,
 }
 
-modApi.achievements:add{
+achNico_Techno_Psion = modApi.achievements:add{
 	id = "Nico_Techno_Psion",
 	name = "Diplomatic Immunity",
-	tip = "Don't kill any Psions over the course of 3 Corporate Islands (Psion Abomination excluded)",
+	tip = "Don't kill any Psions over the course of 3 Corporate Islands. (Psion Abomination excluded).",
 	image = "img/achievements/Nico_Techno_Psion.png",
 	squad = "Nico_Techno_Veks 2",
 	objective = 3,
@@ -128,23 +128,35 @@ end
 
 local function Nico_MissionStart(mission)
 	mission.Nico_PsionDeath = false--create mission flag
+	if achNico_Techno_Psion:isComplete() then
+		achNico_Techno_Psion.tooltip = "Don't kill any Psions over the course of 3 Corporate Islands. (Psion Abomination excluded).\nCompleted."
+	elseif achNico_Techno_Psion:getProgress() < 3 then
+		Nico_GetProgress(mission)
+	end	
 end
 local function Nico_MissionEnd(mission)
 	local progress = modApi.achievements:getProgress("Nico_Techno_Veks 2","Nico_Techno_Psion")
 	if not modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then
 		if mission.Nico_PsionDeath then
 			modApi.achievements:addProgress(modid,"Nico_Techno_Psion",-progress-1)--invalidate if psion was killed
+			Nico_GetProgress(mission)
 		end
 	end
+end
+local function Nico_GetProgress(mission)
+	local texto = math.max(achNico_Techno_Psion:getProgress(),0)
+	achNico_Techno_Psion.tooltip = "Don't kill any Psions over the course of 3 Corporate Islands. (Psion Abomination excluded).\n\nCurrent Progress: " .. texto .. "/3"
 end
 local function Nico_PsionKilled(mission, pawn)
 	if (_G[pawn:GetType()].Image == "DNT_jelly" or pawn:GetLeader() ~= 0) and pawn:GetType() ~= "Jelly_Boss" then
 		mission.Nico_PsionDeath = true--track death of psion
+		Nico_GetProgress(mission)
 	end
 end
 local function Nico_onIslandLeft(island)
 	if modApi.achievements:getProgress(modid,"Nico_Techno_Psion")>-1 then
 		modApi.achievements:addProgress(modid,"Nico_Techno_Psion",1)--increment if still valid
+		Nico_GetProgress(mission)
 	end
 	if modApi.achievements:isComplete(modid, "Nico_Techno_Leaper") and modApi.achievements:isComplete(modid, "Nico_Techno_Centipede") and modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then modApi.achievements:trigger(modid,"Nico_Techno_Shield") end
 end
@@ -154,6 +166,7 @@ local function Nico_GameStart()
 		if GAME.additionalSquadData.squad ~= modid then
 			modApi.achievements:addProgress(modid,"Nico_Techno_Psion",-1)--invalidate if not the right squad
 		end
+		Nico_GetProgress(mission)
 	end
 end
 
@@ -175,5 +188,6 @@ end
 modApi.events.onModsLoaded:subscribe(EVENT_onModsLoaded)
 modApi.events.onIslandLeft:subscribe(Nico_onIslandLeft)
 modApi.events.onPostStartGame:subscribe(Nico_GameStart)
+modApi.events.onHangarLeaving:subscribe(Nico_GetProgress)
 
 return this
