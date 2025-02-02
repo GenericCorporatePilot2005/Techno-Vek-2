@@ -62,7 +62,7 @@ function mod:load( options, version)
 			id="Nico_Techno_Veks 2"
 		},
 		"Secret Squad II",
-		"The second known attempt to combine Vek and Mech; from a timeline where different Vek were used.",
+		"Humanity's newest hope is another blend of Machine and Vek created to defend Earth",
 		self.resourcePath .."img/mod_icon.png"
 	)
 end
