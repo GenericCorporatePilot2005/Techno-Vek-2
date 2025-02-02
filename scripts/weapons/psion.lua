@@ -70,14 +70,14 @@ function Tentacle_attack:GetSkillEffect(p1, p2)
 			anim1.iFire = 1
 			anim1.sScript = "modApi:runLater(function() Board:SetFire("..p2:GetString()..",false) end)"
 		end
-		if Board:IsCrackable(p2) and not Board:IsCracked(p2) and not (Board:IsPawnSpace(p2) and Board:GetPawnTeam(p2) == TEAM_PLAYER) then
-			anim1.iCrack=EFFECT_CREATE
-		elseif Board:GetTerrain(p2) == TERRAIN_HOLE then
+		if Board:GetTerrain(p2) == TERRAIN_HOLE then
 			anim1 = SpaceDamage(p2,DAMAGE_DEATH)
 			anim1.sImageMark = "combat/icons/icon_Nico_Kill_lava.png"
 			anim1.iTerrain = TERRAIN_LAVA
 			anim1.sAnimation = "tentacles"
 			anim2.sAnimation = "Splash_lava"
+		elseif Board:IsCrackable(p2) and not Board:IsCracked(p2) and not (Board:IsPawnSpace(p2) and Board:GetPawnTeam(p2) == TEAM_PLAYER) then
+			anim1.iCrack=EFFECT_CREATE
 		elseif Board:GetTerrain(p2) == TERRAIN_WATER then
 			local watereffect = SpaceDamage(p2,0)
 			if Board:IsAcid(p2) then
@@ -146,15 +146,15 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 	elseif self.Heal and Board:GetPawnTeam(p3) == TEAM_PLAYER then
 		anim1.iDamage = -1
 	else
-		if Board:GetPawnTeam(p3) == TEAM_ENEMY then
-			anim1=SpaceDamage(p3,self.Damage,DIR_FLIP)
-			anim1.sAnimation = "PsionAttack_Front"
-		elseif Board:GetTerrain(p3) == TERRAIN_HOLE then
+		if Board:GetTerrain(p3) == TERRAIN_HOLE then
 			anim1 = SpaceDamage(p3,DAMAGE_DEATH)
 			anim1.sImageMark = "combat/icons/icon_Nico_Kill_lava.png"
 			anim1.iTerrain = TERRAIN_LAVA
 			anim1.sAnimation = "tentacles"
 			anim2.sAnimation = "Splash_lava"
+		elseif Board:GetPawnTeam(p3) == TEAM_ENEMY then
+			anim1=SpaceDamage(p3,self.Damage,DIR_FLIP)
+			anim1.sAnimation = "PsionAttack_Front"
 		else
 			anim1.iDamage=self.Damage
 		end
@@ -233,6 +233,7 @@ Tentacle_attack_Tip_A = Tentacle_attack_A:new{
 		Unit = Point(2,2),
 		Mountain = Point(0,2),
 		Enemy1 = Point(2,0),
+		Queued1 = Point(2,1),
 		Hole = Point(2,4),
 		Enemy2 = Point(2,4),
 		Target = Point(4,2),
@@ -301,7 +302,7 @@ function Tentacle_attack_Tip:GetSkillEffect(p1, p2)
 	return ret
 end
 
-function Tentacle_attack_Tip_B:GetFinalEffect(p1,p2,p3)
+function Tentacle_attack_Tip_A:GetFinalEffect(p1,p2,p3)
 	local ret = SkillEffect()
 	local x = math.random(4)
 	if self.Heal then
