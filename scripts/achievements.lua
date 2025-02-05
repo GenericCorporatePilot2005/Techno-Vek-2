@@ -126,6 +126,12 @@ end
 
 --Psion's achievement
 
+local function Nico_GetProgress(mission)
+	if GAME and GAME.additionalSquadData.squad == modid and not modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then
+		local texto = math.max(achNico_Techno_Psion:getProgress(),0)
+		achNico_Techno_Psion.tooltip = "Don't kill any Psions over the course of 3 Corporate Islands. (Psion Abomination excluded).\n\nCurrent Progress: " .. texto .. "/3"
+	end
+end
 local function Nico_MissionStart(mission)
 	mission.Nico_PsionDeath = false--create mission flag
 	if achNico_Techno_Psion:isComplete() then
@@ -142,10 +148,6 @@ local function Nico_MissionEnd(mission)
 			Nico_GetProgress(mission)
 		end
 	end
-end
-local function Nico_GetProgress(mission)
-	local texto = math.max(achNico_Techno_Psion:getProgress(),0)
-	achNico_Techno_Psion.tooltip = "Don't kill any Psions over the course of 3 Corporate Islands. (Psion Abomination excluded).\n\nCurrent Progress: " .. texto .. "/3"
 end
 local function Nico_PsionKilled(mission, pawn)
 	if (_G[pawn:GetType()].Image == "DNT_jelly" or pawn:GetLeader() ~= 0) and pawn:GetType() ~= "Jelly_Boss" then
