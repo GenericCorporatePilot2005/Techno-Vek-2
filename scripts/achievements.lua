@@ -50,16 +50,32 @@ achNico_Techno_Psion = modApi.achievements:add{
 	objective = 3,
 }
 
-modApi.achievements:add{
+local function nicoNameChange(id,n,b)
+    if modApi.achievements:get(modid,id) ~= nil and (modApi.achievements:isComplete(modid,id) or b) then
+		name = "The Call of The Psion"
+        tip = "New Mech Unlocked on Random and Custom Squads.\nRequires a restart to take effect."
+	else
+		name = "Locked."
+        tip = "Try getting the other Achievements to see what this entails!"
+    end
+    ret = {name,tip}
+    return ret[n]
+end
+
+achNico_Techno_Shield = modApi.achievements:add{
 	id = "Nico_Techno_Shield",
 	global = "Secret Rewards",
 	secret=true,
-	name = "The Call of The Psion",
-	tip = "New Mech Unlocked on Random and Custom Squads.\nRequires a restart to take effect.",
+	name = "Locked",
+	tip = "Try getting the other Achievements to see what this entails!",
 	image = "img/achievements/Nico_Techno_Shield.png",
 	squad = "Nico_Techno_Veks 2",
 }
 
+local function nicoNameUpdate(b)	
+	achNico_Techno_Shield.name = nicoNameChange(achNico_Techno_Shield.id, 1,b)
+	achNico_Techno_Shield.tooltip = nicoNameChange(achNico_Techno_Shield.id, 2,b)
+end
 --Lemon's Real Mission Checker
 local function isRealMission()
 local mission = GetCurrentMission()
@@ -77,7 +93,7 @@ end
 local function getMountainPreCount(mission, pawn, weaponId, p1, p2)
 	local count = 0
 	
-	if (weaponId == "Acidic_Vomit") or (weaponId == "Acidic_Vomit_A") or (weaponId == "Acidic_Vomit_B") or (weaponId == "Acidic_Vomit_AB") then
+	if string.sub(weaponId, 1, 12) == "Acidic_Vomit" then
 		global_gunk = true
 	else
 		global_gunk = false
@@ -118,7 +134,10 @@ local function mountainChecker(mission)
 	local ret = SkillEffect()
 	if isRealMission() and gunk and precount - postcount > 3 and GAME.additionalSquadData.squad == modid and not modApi.achievements:isComplete(modid,"Nico_Techno_Centipede") then
 		ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Centipede')")
-		if modApi.achievements:isComplete(modid, "Nico_Techno_Leaper") and modApi.achievements:isComplete(modid, "Nico_Techno_Psion") then ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Shield')") end
+		if modApi.achievements:isComplete(modid, "Nico_Techno_Leaper") and modApi.achievements:isComplete(modid, "Nico_Techno_Psion") then
+			nicoNameUpdate(true)
+			ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Shield')")
+		end
 		Board:AddEffect(ret)
 		global_gunk = false
 	end
@@ -160,7 +179,10 @@ local function Nico_onIslandLeft(island)
 		modApi.achievements:addProgress(modid,"Nico_Techno_Psion",1)--increment if still valid
 		Nico_GetProgress(mission)
 	end
-	if modApi.achievements:isComplete(modid, "Nico_Techno_Leaper") and modApi.achievements:isComplete(modid, "Nico_Techno_Centipede") and modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then modApi.achievements:trigger(modid,"Nico_Techno_Shield") end
+	if modApi.achievements:isComplete(modid, "Nico_Techno_Leaper") and modApi.achievements:isComplete(modid, "Nico_Techno_Centipede") and modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then
+		nicoNameUpdate(true)
+		modApi.achievements:trigger(modid,"Nico_Techno_Shield")
+	end
 end
 local function Nico_GameStart()
 	if not modApi.achievements:isComplete(modid,"Nico_Techno_Psion") then
@@ -173,6 +195,7 @@ local function Nico_GameStart()
 end
 
 local function EVENT_onModsLoaded() --This function will run when the mod is loaded
+	nicoNameUpdate(false)
 	--modapiext is requested in the init.lua
 	global_gunk = false
 	global_mountains_precount = 0

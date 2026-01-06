@@ -144,7 +144,7 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 	if Board:IsBuilding(p3) then
 		anim1.iDamage = 0
 	elseif self.Heal and Board:GetPawnTeam(p3) == TEAM_PLAYER then
-		anim1.iDamage = -1
+		anim1.iDamage = -self.Damage
 	else
 		if Board:GetTerrain(p3) == TERRAIN_HOLE then
 			anim1 = SpaceDamage(p3,DAMAGE_DEATH)
@@ -156,7 +156,8 @@ function Tentacle_attack_A:GetFinalEffect(p1, p2, p3)
 			anim1=SpaceDamage(p3,self.Damage,DIR_FLIP)
 			anim1.sAnimation = "PsionAttack_Front"
 		else
-			anim1.iDamage=self.Damage
+			anim1.iDamage = self.Damage
+			anim1.iPush = DIR_FLIP
 		end
 		if Board:GetTerrain(p3) == TERRAIN_WATER then
 			local watereffect=SpaceDamage(p3,0)

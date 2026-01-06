@@ -87,7 +87,10 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 	if (self.Damage==4 or Board:GetPawn(p1):IsBoosted()) and Board:IsPawnSpace(p2) and GAME.additionalSquadData.squad == "Nico_Techno_Veks 2" and not modApi.achievements:isComplete("Nico_Techno_Veks 2","Nico_Techno_Leaper") then
 		if Board:GetPawnTeam(p2) == TEAM_ENEMY and Board:GetPawn(p2):IsAcid() then
 			ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Leaper')")
-			if modApi.achievements:isComplete("Nico_Techno_Veks 2", "Nico_Techno_Centipede") and modApi.achievements:isComplete("Nico_Techno_Veks 2", "Nico_Techno_Psion") then ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Shield')") end
+			if modApi.achievements:isComplete("Nico_Techno_Veks 2", "Nico_Techno_Centipede") and modApi.achievements:isComplete("Nico_Techno_Veks 2", "Nico_Techno_Psion") then
+		nicoNameUpdate(true)
+				ret:AddScript("Nico_Techno_Veks2squad_Chievo('Nico_Techno_Shield')")
+			end
 		end
 	end
 	
@@ -109,6 +112,9 @@ function Leaper_Talons:GetSkillEffect(p1, p2)
 		ret:AddLeap(move,FULL_DELAY)
 	else
 		ret:AddScript("Board:GetPawn("..mechId.."):SetBonusMove("..bonusMove..")")
+		if (self.Damage == 3 and bonusMove>1) or (self.Damage == 4 and bonusMove>2) then
+			ret:AddScript(string.format("Board:AddAlert(%s, \"Extra Movement: %d + %d = %d.\")", p1:GetString(), self.Damage-2,bonusMove-(self.Damage-2),bonusMove))
+		end
 	end
 
 	return ret

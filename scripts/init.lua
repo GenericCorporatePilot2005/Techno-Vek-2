@@ -4,7 +4,7 @@
 local mod = {
 	id = "Nico_Techno_Veks 2",
 	name = "Secret Squad II",
-	version = "1.2.5",
+	version = "1.2.6",
 	requirements = {},
 	dependencies = { --This requests modApiExt from the mod loader
 		modApiExt = "1.17", --We can get this by using the variable `modapiext`

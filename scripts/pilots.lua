@@ -12,7 +12,7 @@ CreatePilot{
 	Sex = SEX_VEK,
 	Skill = "Survive_Death",
 	Rarity = 0,
-	Blacklist = {"Invulnerable", "Popular"},
+	Blacklist = {"Invulnerable", "Popular","Thick"},
 }
 CreatePilot{
 	Id = "Pilot_Nico_Techno_Psion",
