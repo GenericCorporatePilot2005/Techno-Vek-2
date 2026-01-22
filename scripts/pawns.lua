@@ -42,7 +42,7 @@ local original_MoveGetSkillEffect = Move.GetSkillEffect
 function Move:GetSkillEffect(p1, p2)
 	local ret
 
-	if Pawn:GetMechName() == "Techno-Leaper" then
+	if Pawn:GetType() == "Nico_Techno_Leaper" then
 		ret = Nico_LeaperMove:GetSkillEffect(p1, p2)
 	else
 		ret = original_MoveGetSkillEffect(self, p1, p2)
